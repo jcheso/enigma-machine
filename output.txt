@@ -1,0 +1,6 @@
+Have 5 arguments:
+C:\Users\jches\Documents\Programming\MSc Computing\Intro to C++\Coursework #2\enigma.exe
+plugboards/IV.pb
+reflectors/I.rf
+rotors/II.rot
+rotors/I.pos
