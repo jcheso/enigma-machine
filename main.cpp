@@ -12,9 +12,9 @@ using namespace std;
 /* This function takes an input string and assigns the contents to an array - Save as vector of strings instead of int?*/
 int parseInputStrings(char array[], vector<string> &arrayOut);
 /* This function checks if a plugboard was provided */
-bool checkPlugboardSupplied(string plugboardTest);
+bool plugboardSupplied(string plugboardTest);
 /* This function checks if a rotor starting position was provided */
-bool checkRotorSupplied(string rotorPosTest);
+bool rotorSupplied(string rotorPosTest);
 /* This function takes a string array and prints it */
 void printArray(vector<string> &array);
 /* This function takes an integer array and prints it */
@@ -27,10 +27,11 @@ bool isNumeric(string ch);
 /* This function checks if the input is in the range of 0-25 */
 bool isValidNum(int num);
 /* This function checks if the array is the expected length */
-int isValidLen(int n, vector<int> array);
+bool isValidLen(int n, vector<int> array);
 /* This function checks if the value is already in the array */
 bool isInArray(int n, vector<int> array);
-
+/* This function checks if the value is already in the array and returns the position */
+bool isInArray(int n, vector<int> array, int &arrayPosition);
 /* This class models the Input Switches */
 class InputSwitches
 {
@@ -54,11 +55,31 @@ public:
 class Plugboard
 {
     // Define any private variables and methods here
-    vector<int> inputArray;
-    vector<int> outputArray;
+    vector<int> array1;
+    vector<int> array2;
+
     /* This method fills the remainder of the plugboard with the missing characters */
-    void fillArray(){
+    void fillArray(vector<int> &array1, vector<int> &array2)
+    {
+
         // Iterate from 0 to 25 and check if the value is in the input array
+        for (int i = array1.size(); i < 13; i++)
+        {
+            int sum2add;
+            for (int j = 0; j < 26; j++)
+            {
+                if (!isInArray(j, array1) && !isInArray(j, array2))
+                {
+                    sum2add = j;
+                    break;
+                }
+            }
+            array1.push_back(sum2add);
+            array2.push_back(sum2add);
+            printArray(array1);
+            printArray(array2);
+        }
+
         // If not in index, append value to input and output arrays.
     };
     // Define any public variables and methods here
@@ -67,71 +88,91 @@ public:
     provided it will initialise a default 1 to 1 plugboard */
     int initialisePlugboard(vector<string> config)
     {
-        int num;
-        // If no plugboard was provided, then convert strings to ints, else perform the checks
-        // If not a null ptr, initialise the board in a for loop
-        // **Start Loop**
-        for (int i = 0; i < config.size(); i++)
+        if (plugboardSupplied)
         {
-            // Check isNumeric() & convert to int if true. Return error code if false
-            if (isNumeric(config[i]))
+            int num;
+            // If no plugboard was provided, then convert strings to ints, else perform the checks
+            // **Start Loop**
+            for (int i = 0; i < config.size(); i++)
             {
-                num = stoi(config[i]);
-            }
-            else
-            {
-                cerr << "Non numeric character provided";
-                return NON_NUMERIC_CHARACTER;
-            }
-
-            // Check isValidNum() and return error code if false
-            if (!isValidNum(num))
-            {
-                cerr << "Invalid index provided" << endl;
-                return NON_NUMERIC_CHARACTER;
-            }
-
-            // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
-            if (i % 2 == 0)
-            {
-                if (!isInArray(num, inputArray))
+                // Check isNumeric() & convert to int if true. Return error code if false
+                if (isNumeric(config[i]))
                 {
-                    cout << "Adding " << num << " to input array" << endl;
-                    inputArray.push_back(num);
+                    num = stoi(config[i]);
                 }
                 else
                 {
-                    cerr << "This number is already in the input array" << endl;
-                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                    cerr << "Non numeric character provided";
+                    return NON_NUMERIC_CHARACTER;
                 }
-            }
-            else
-            {
-                if (!isInArray(num, outputArray))
+
+                // Check isValidNum() and return error code if false
+                if (!isValidNum(num))
                 {
-                    cout << "Adding " << num << " to output array" << endl;
-                    outputArray.push_back(num);
+                    cerr << "Invalid index provided" << endl;
+                    return NON_NUMERIC_CHARACTER;
+                }
+
+                // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
+                if (i % 2 == 0)
+                {
+                    if (!isInArray(num, array1))
+                    {
+                        cout << "Adding " << num << " to input array" << endl;
+                        array1.push_back(num);
+                    }
+                    else
+                    {
+                        cerr << "This number is already in the input array" << endl;
+                        return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                    }
                 }
                 else
                 {
-                    cerr << "This number is already in the output array" << endl;
-                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                    if (!isInArray(num, array2))
+                    {
+                        cout << "Adding " << num << " to output array" << endl;
+                        array2.push_back(num);
+                    }
+                    else
+                    {
+                        cerr << "This number is already in the output array" << endl;
+                        return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                    }
                 }
             }
+            printArray(array1);
+            printArray(array2);
+
+            if (config.size() < 26)
+            {
+                fillArray(array1, array2);
+            }
+            // Check if length of input array is less than 52, if so run fillArray on both arrays
+            // Check isValidLen()
         }
-        printArray(inputArray);
-        printArray(outputArray);
 
-        // Check if length of input array is less than 25, if so run fillArray on both arrays
-        // Check isValidLen()
         // Return 0 if no error
     }
 
     /* This class method takes in an input and swaps it to the correct output */
-    int swapLetter(int input, int output)
+    int swapLetter(int input)
     {
-        // Get the index of the input in the inputArray
-        // Return the value at that index in the outputArray
+        int arrayPosition, output;
+        if (isInArray(input, array1, arrayPosition))
+        {
+            output = array2[arrayPosition];
+            cout << "Input letter: " << input << " swapped to: " << output << endl;
+            ;
+            return output;
+        }
+        else if (isInArray(input, array2, arrayPosition))
+        {
+            output = array1[arrayPosition];
+            cout << "Input letter: " << input << "swapped to: " << output << endl;
+            ;
+            return output;
+        }
     }
 };
 
@@ -314,7 +355,7 @@ int main(int argc, char **argv)
 
     // Check if Plugboard was supplied, if not default to the standard mapping
     string plugboardTest = argv[1];
-    if (!checkPlugboardSupplied(plugboardTest))
+    if (!plugboardSupplied(plugboardTest))
     {
         cout << "Plugboard not supplied, defaulting to standard mapping" << endl;
         for (int i = 0; i < 26; i++)
@@ -356,7 +397,7 @@ int main(int argc, char **argv)
 
     // Check if rotor start positions are supplied, throw an error if not
     string rotorPosTest = argv[argc - 1];
-    if (!checkRotorSupplied(rotorPosTest))
+    if (!rotorSupplied(rotorPosTest))
     {
         cout << "Invalid rotor configuration" << endl;
         return INSUFFICIENT_NUMBER_OF_PARAMETERS;
@@ -366,9 +407,11 @@ int main(int argc, char **argv)
         cout << "Valid rotor configuration" << endl;
     }
 
+    int val;
     Plugboard plugboard;
     plugboard.initialisePlugboard(plugboardInput);
-
+    val = plugboard.swapLetter(1);
+    cout << val << endl;
     return 0;
 }
 
@@ -450,7 +493,7 @@ void printArray(vector<int> &array)
     cout << endl;
 }
 
-bool checkPlugboardSupplied(string plugboardTest)
+bool plugboardSupplied(string plugboardTest)
 {
     if (plugboardTest.back() == 'b')
     {
@@ -463,7 +506,7 @@ bool checkPlugboardSupplied(string plugboardTest)
     }
 }
 
-bool checkRotorSupplied(string rotorPosTest)
+bool rotorSupplied(string rotorPosTest)
 {
     if (rotorPosTest.back() == 's')
     {
@@ -511,9 +554,19 @@ bool isInArray(int n, vector<int> array)
         {
             return true;
         }
-        else
+    }
+    return false;
+}
+
+bool isInArray(int n, vector<int> array, int &arrayPosition)
+{
+    for (int i = 0; i < array.size(); i++)
+    {
+        if (n == array[i])
         {
-            return false;
+            arrayPosition = i;
+            return true;
         }
     }
+    return false;
 }
