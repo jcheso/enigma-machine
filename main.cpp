@@ -4,27 +4,32 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <ctype.h>
+#include <typeinfo>
+
 using namespace std;
 
 /* This function takes an input string and assigns the contents to an array - Save as vector of strings instead of int?*/
-int parseInputStrings(char array[], vector<int> &arrayOut);
+int parseInputStrings(char array[], vector<string> &arrayOut);
 /* This function checks if a plugboard was provided */
 bool checkPlugboardSupplied(string plugboardTest);
 /* This function checks if a rotor starting position was provided */
 bool checkRotorSupplied(string rotorPosTest);
-/* This function takes an array and prints it */
+/* This function takes a string array and prints it */
+void printArray(vector<string> &array);
+/* This function takes an integer array and prints it */
 void printArray(vector<int> &array);
 /* This function calculates the modulus and returns the new integer */
 int takeModulus(int n);
 /* ---- ERROR CHECKS - RETURN THE CORRECT ERROR CODE WITHIN THE CLASS */
 /* This function checks if the input is numeric */
-int isNumeric(char ch);
+bool isNumeric(string ch);
 /* This function checks if the input is in the range of 0-25 */
-int isValidNum(char ch);
+bool isValidNum(int num);
 /* This function checks if the array is the expected length */
 int isValidLen(int n, vector<int> array);
 /* This function checks if the value is already in the array */
-int isInArray(int n, vector<int> array);
+bool isInArray(int n, vector<int> array);
 
 /* This class models the Input Switches */
 class InputSwitches
@@ -60,17 +65,63 @@ class Plugboard
 public:
     /* This method takes in a config file and initialises the plugboard array, if no array is
     provided it will initialise a default 1 to 1 plugboard */
-    int initialisePlugboard(vector<string> *config)
+    int initialisePlugboard(vector<string> config)
     {
-        // If null ptr, then return a default plugboard
+        int num;
+        // If no plugboard was provided, then convert strings to ints, else perform the checks
         // If not a null ptr, initialise the board in a for loop
         // **Start Loop**
-        // Check isNumeric()
-        // Check isValidNum()
-        // Check isInArray()
-        // If value is odd - assign to input array
-        // If value is even - assign to output array
-        // **End Loop**
+        for (int i = 0; i < config.size(); i++)
+        {
+            // Check isNumeric() & convert to int if true. Return error code if false
+            if (isNumeric(config[i]))
+            {
+                num = stoi(config[i]);
+            }
+            else
+            {
+                cerr << "Non numeric character provided";
+                return NON_NUMERIC_CHARACTER;
+            }
+
+            // Check isValidNum() and return error code if false
+            if (!isValidNum(num))
+            {
+                cerr << "Invalid index provided" << endl;
+                return NON_NUMERIC_CHARACTER;
+            }
+
+            // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
+            if (i % 2 == 0)
+            {
+                if (!isInArray(num, inputArray))
+                {
+                    cout << "Adding " << num << " to input array" << endl;
+                    inputArray.push_back(num);
+                }
+                else
+                {
+                    cerr << "This number is already in the input array" << endl;
+                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                }
+            }
+            else
+            {
+                if (!isInArray(num, outputArray))
+                {
+                    cout << "Adding " << num << " to output array" << endl;
+                    outputArray.push_back(num);
+                }
+                else
+                {
+                    cerr << "This number is already in the output array" << endl;
+                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                }
+            }
+        }
+        printArray(inputArray);
+        printArray(outputArray);
+
         // Check if length of input array is less than 25, if so run fillArray on both arrays
         // Check isValidLen()
         // Return 0 if no error
@@ -229,9 +280,11 @@ int main(int argc, char **argv)
     // No plugboard, use default
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
     // argv[1] = "reflectors/I.rf";
-    // argv[2] = "rotors/II.rot";
-    // argv[3] = "rotors/I.pos";
-    // argc = 4;
+    // argv[2] = "rotors/I.rot";
+    // argv[3] = "rotors/II.rot";
+    // argv[4] = "rotors/III.rot";
+    // argv[5] = "rotors/I.pos";
+    // argc = 6;
 
     // No plugboard or rotor, invalid
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
@@ -254,40 +307,56 @@ int main(int argc, char **argv)
     }
 
     // Initialise vectors to store inputs
-    vector<int> plugboard;
-    vector<int> reflector;
-    vector<int> rotors[10];
-    vector<int> rotorPositions;
+    vector<string> plugboardInput;
+    vector<string> reflectorInput;
+    vector<string> rotorsInput[10];
+    vector<string> rotorPosInput;
 
     // Check if Plugboard was supplied, if not default to the standard mapping
     string plugboardTest = argv[1];
     if (!checkPlugboardSupplied(plugboardTest))
     {
         cout << "Plugboard not supplied, defaulting to standard mapping" << endl;
-        plugboard = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25};
+        for (int i = 0; i < 26; i++)
+        {
+            plugboardInput.push_back(to_string(i));
+            plugboardInput.push_back(to_string(i));
+        }
+
+        parseInputStrings(argv[1], reflectorInput);
+        printArray(reflectorInput);
+
+        for (int i = 0; i < argc - 4; i++)
+        {
+            parseInputStrings(argv[2 + i], rotorsInput[i]);
+            printArray(rotorsInput[i]);
+        }
+
+        parseInputStrings(argv[argc - 1], rotorPosInput);
+        printArray(rotorPosInput);
     }
     else
     {
         cout << "Plugboard provided, saving to variable" << endl;
-        parseInputStrings(argv[1], plugboard);
-        printArray(plugboard);
+        parseInputStrings(argv[1], plugboardInput);
+        printArray(plugboardInput);
 
-        parseInputStrings(argv[2], reflector);
-        printArray(reflector);
+        parseInputStrings(argv[2], reflectorInput);
+        printArray(reflectorInput);
 
         for (int i = 0; i < argc - 4; i++)
         {
-            parseInputStrings(argv[3 + i], rotors[i]);
-            printArray(rotors[i]);
+            parseInputStrings(argv[3 + i], rotorsInput[i]);
+            printArray(rotorsInput[i]);
         }
 
-        parseInputStrings(argv[argc - 1], rotorPositions);
-        printArray(rotorPositions);
+        parseInputStrings(argv[argc - 1], rotorPosInput);
+        printArray(rotorPosInput);
     }
 
     // Check if rotor start positions are supplied, throw an error if not
-    string rotorPostTest = argv[argc - 1];
-    if (!checkRotorSupplied(rotorPostTest))
+    string rotorPosTest = argv[argc - 1];
+    if (!checkRotorSupplied(rotorPosTest))
     {
         cout << "Invalid rotor configuration" << endl;
         return INSUFFICIENT_NUMBER_OF_PARAMETERS;
@@ -297,10 +366,13 @@ int main(int argc, char **argv)
         cout << "Valid rotor configuration" << endl;
     }
 
+    Plugboard plugboard;
+    plugboard.initialisePlugboard(plugboardInput);
+
     return 0;
 }
 
-int parseInputStrings(char arrayIn[], vector<int> &arrayOut)
+int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
 {
     // Function to read in the arguments
     // Pass a ref to the arrays in main
@@ -316,7 +388,7 @@ int parseInputStrings(char arrayIn[], vector<int> &arrayOut)
 
     // Create variables to store the character, and each set of characters that complete the number
     char ch;
-    string char2num;
+    string num;
 
     if (input.fail())
     {
@@ -333,18 +405,18 @@ int parseInputStrings(char arrayIn[], vector<int> &arrayOut)
         // If it is not a space or end of file, copy the numbers to a temp string
         if (ch != ' ' && ch != '\n')
         {
-            char2num += ch;
+            num += ch;
         }
         // Conver the temp string to an int and store it in the array
         else if (ch != '\n')
         {
-            arrayOut.push_back(stoi(char2num));
-            char2num = "";
+            arrayOut.push_back(num);
+            num = "";
             i++;
         }
         else if (ch == '\n')
         {
-            arrayOut.push_back(stoi(char2num));
+            arrayOut.push_back(num);
             break;
         }
     }
@@ -354,6 +426,17 @@ int parseInputStrings(char arrayIn[], vector<int> &arrayOut)
     printArray(arrayOut);
 
     return 0;
+}
+
+void printArray(vector<string> &array)
+{
+    // Check array
+    cout << "Array is: ";
+    for (size_t i = 0; i < array.size(); i++)
+    {
+        cout << array[i] << ' ';
+    }
+    cout << endl;
 }
 
 void printArray(vector<int> &array)
@@ -390,5 +473,47 @@ bool checkRotorSupplied(string rotorPosTest)
     else
     {
         return false;
+    }
+}
+
+bool isNumeric(string ch)
+{
+    cout << ch << endl;
+    try
+    {
+        int num = stoi(ch);
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
+/* This function checks if the input is in the range of 0-25 */
+bool isValidNum(int num)
+{
+    if (num >= 0 || num <= 25)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool isInArray(int n, vector<int> array)
+{
+    for (int i = 0; i < array.size(); i++)
+    {
+        if (n == array[i])
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

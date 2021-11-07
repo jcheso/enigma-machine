@@ -38,6 +38,7 @@
         "xutility": "cpp",
         "tuple": "cpp",
         "vector": "cpp",
-        "array": "cpp"
+        "array": "cpp",
+        "string": "cpp"
     }
 }
