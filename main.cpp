@@ -3,15 +3,17 @@
 #include "errors.h"
 #include <string>
 #include <vector>
+#include <array>
 using namespace std;
 
 /* This function takes an input string and assigns the contents to an array - Save as vector of strings instead of int?*/
 int parseInputStrings(char array[], vector<int> &arrayOut);
-/* This function takes the initial argument and if a plugboard was provided */
-bool checkPlugboardSupplied(int argc, char **argv);
+/* This function checks if a plugboard was provided */
+bool checkPlugboardSupplied(string plugboardTest);
+/* This function checks if a rotor starting position was provided */
+bool checkRotorSupplied(string rotorPosTest);
 /* This function takes an array and prints it */
 void printArray(vector<int> &array);
-
 /* This function calculates the modulus and returns the new integer */
 int takeModulus(int n);
 /* ---- ERROR CHECKS - RETURN THE CORRECT ERROR CODE WITHIN THE CLASS */
@@ -206,27 +208,43 @@ public:
 
 int main(int argc, char **argv)
 {
-    // Need to change this to check the if a plugboard was supplied first, then check num parameters.
-    // Check how many rotors there are. Throw an error if no rotors are supplied.
-    if ((argc - 4) == 0)
-    {
-        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
-    }
-    else
-    {
-        cout << "Using " << (argc - 4) << " rotors" << endl;
-    }
+    // Correct input
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "plugboards/IV.pb";
+    // argv[2] = "reflectors/I.rf";
+    // argv[3] = "rotors/II.rot";
+    // argv[4] = "rotors/I.pos";
+    // argc = 5;
 
-    // Set up test variables for debugging
-    char testPlugboard[] = "plugboards/IV.pb";
-    char testReflectors[] = "reflectors/I.rf";
-    char testRotor[] = "rotors/II.rot";
-    char testRotorPos[] = "rotors/I.pos";
+    // Correct input, multiple rotors
+    argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    argv[1] = "plugboards/IV.pb";
+    argv[2] = "reflectors/I.rf";
+    argv[3] = "rotors/I.rot";
+    argv[4] = "rotors/II.rot";
+    argv[5] = "rotors/III.rot";
+    argv[6] = "rotors/I.pos";
+    argc = 7;
 
-    // Initialise arrays to store our config files - change to array lib?
-    vector<int> plugboard[25];
-    vector<int> reflector[25];
-    vector<int> rotors[10][25];
+    // No plugboard, use default
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "reflectors/I.rf";
+    // argv[2] = "rotors/II.rot";
+    // argv[3] = "rotors/I.pos";
+    // argc = 4;
+
+    // No plugboard or rotor, invalid
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "reflectors/I.rf";
+    // argv[2] = "rotors/II.rot";
+    // argc = 3;
+
+    // Plugboard, but no rotor - invalid
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "plugboards/IV.pb";
+    // argv[2] = "reflectors/I.rf";
+    // argv[3] = "rotors/II.rot";
+    // argc = 4;
 
     cout << "Have " << argc << " arguments:" << endl;
 
@@ -235,13 +253,49 @@ int main(int argc, char **argv)
         cout << argv[i] << endl;
     }
 
-    // First input is always a plugboard
-    // Second input is always a reflector
-    // 3 - Argc is rotors
-    parseInputStrings(argv[1], plugboard[25]);
-    printArray(plugboard[25]);
-    parseInputStrings(argv[2], reflector[25]);
-    printArray(reflector[25]);
+    // Initialise vectors to store inputs
+    vector<int> plugboard;
+    vector<int> reflector;
+    vector<int> rotors[10];
+    vector<int> rotorPositions;
+
+    // Check if Plugboard was supplied, if not default to the standard mapping
+    string plugboardTest = argv[1];
+    if (!checkPlugboardSupplied(plugboardTest))
+    {
+        cout << "Plugboard not supplied, defaulting to standard mapping" << endl;
+        plugboard = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25};
+    }
+    else
+    {
+        cout << "Plugboard provided, saving to variable" << endl;
+        parseInputStrings(argv[1], plugboard);
+        printArray(plugboard);
+
+        parseInputStrings(argv[2], reflector);
+        printArray(reflector);
+
+        for (int i = 0; i < argc - 4; i++)
+        {
+            parseInputStrings(argv[3 + i], rotors[i]);
+            printArray(rotors[i]);
+        }
+
+        parseInputStrings(argv[argc - 1], rotorPositions);
+        printArray(rotorPositions);
+    }
+
+    // Check if rotor start positions are supplied, throw an error if not
+    string rotorPostTest = argv[argc - 1];
+    if (!checkRotorSupplied(rotorPostTest))
+    {
+        cout << "Invalid rotor configuration" << endl;
+        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
+    }
+    else
+    {
+        cout << "Valid rotor configuration" << endl;
+    }
 
     return 0;
 }
@@ -311,4 +365,30 @@ void printArray(vector<int> &array)
         cout << array[i] << ' ';
     }
     cout << endl;
+}
+
+bool checkPlugboardSupplied(string plugboardTest)
+{
+    if (plugboardTest.back() == 'b')
+    {
+        cout << "Plugboard supplied" << endl;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool checkRotorSupplied(string rotorPosTest)
+{
+    if (rotorPosTest.back() == 's')
+    {
+        cout << "Rotor Starting Positions Supplied" << endl;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
