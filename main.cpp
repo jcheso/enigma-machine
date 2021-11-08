@@ -6,7 +6,6 @@
 #include <array>
 #include <ctype.h>
 #include <typeinfo>
-
 using namespace std;
 
 /* This function takes an input string and assigns the contents to an array - Save as vector of strings instead of int?*/
@@ -19,9 +18,6 @@ bool rotorSupplied(string rotorPosTest);
 void printArray(vector<string> &array);
 /* This function takes an integer array and prints it */
 void printArray(vector<int> &array);
-/* This function calculates the modulus and returns the new integer */
-int takeModulus(int n);
-/* ---- ERROR CHECKS - RETURN THE CORRECT ERROR CODE WITHIN THE CLASS */
 /* This function checks if the input is numeric */
 bool isNumeric(string ch);
 /* This function checks if the input is in the range of 0-25 */
@@ -33,6 +29,7 @@ bool isInArray(int n, vector<int> array);
 /* This function checks if the value is already in the array and returns the position */
 bool isInArray(int n, vector<int> array, int &arrayPosition);
 /* This class models the Input Switches */
+
 class InputSwitches
 {
     // This vector keeps track of all the input characters
@@ -64,12 +61,11 @@ class Plugboard
     // Define any private variables and methods here
     vector<int> array1;
     vector<int> array2;
-
     /* This method fills the remainder of the plugboard with the missing characters */
-    void fillArray(vector<int> &array1, vector<int> &array2)
+    void fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
     {
         // Iterate from 0 to 25 and check if the value is in the input array
-        for (int i = array1.size(); i < 13; i++)
+        for (int i = 0; i < (26 - (arrSize * 2)); i++)
         {
             int sum2add;
             for (int j = 0; j < 26; j++)
@@ -117,44 +113,41 @@ public:
                 }
 
                 // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
-                if (i % 2 == 0)
+                if (!isInArray(num, array2) && !isInArray(num, array1))
                 {
-                    if (!isInArray(num, array1))
+                    if (i % 2 == 0)
                     {
                         array1.push_back(num);
                     }
                     else
                     {
-                        cerr << "This number is already in the input array" << endl;
-                        return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                        array2.push_back(num);
                     }
                 }
                 else
                 {
-                    if (!isInArray(num, array2))
-                    {
-                        array2.push_back(num);
-                    }
-                    else
-                    {
-                        cerr << "This number is already in the output array" << endl;
-                        return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
-                    }
+                    cerr << "This number is already in array 2" << endl;
+                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
                 }
             }
-
-            // Check if length of input array is less than 26, if so run fillArray on both arrays
-            if (config.size() < 26)
-            {
-                fillArray(array1, array2);
-            }
-            // Check isValidLen()
-            if (!isValidLen(13, array1))
-            {
-                cerr << "Incorrect number of plugboard parameters" << endl;
-                return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
-            }
         }
+
+        // Check if length of input array is less than 26, if so run fillArray on both arrays
+        if (config.size() < 26)
+        {
+            fillArray(array1, array2, array2.size());
+        }
+        // Check isValidLen()
+        if (!isValidLen((26 - (config.size() / 2)), array1))
+        {
+            cerr << "Incorrect number of plugboard parameters" << endl;
+            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
+        }
+
+        cout << "Plugboard initialised as: " << endl;
+        printArray(array1);
+        printArray(array2);
+
         // Return 0 if no error
         return 0;
     }
@@ -302,9 +295,16 @@ public:
         rotorMap[0] = last;
     }
     /* This method maps the input number to the output number */
-    int mapNumber(int &num)
+    int mapNumber(int &num, bool reflected)
     {
-        num = rotorMap[num];
+        if (!reflected)
+        {
+            num = rotorMap[num];
+        }
+        else
+        {
+            isInArray(num, rotorMap, num);
+        }
         // If it has a notch
         // checkNotch()
         // If it is rotor 1, rotate rotor (does this happen if rotates from a notch as well?)
@@ -326,8 +326,8 @@ public:
 class Reflector
 {
     // Define any private variables and methods here
-    vector<int> arr1;
-    vector<int> arr2;
+    vector<int> array1;
+    vector<int> array2;
     int reflectedNumber;
     int index;
     // Define any public variables and methods here
@@ -340,20 +340,86 @@ public:
         // Check isValidNum()
         // Check isInArray(arr1)
         // Check isInArray(arr2)
-        // If value is odd - assign to input array
-        // If value is even - assign to output array
+        // If index is odd - assign to input array
+        // If index is even - assign to output array
         // **End Loop**
         // Check if length of arrays are less than 13,
         // Check isValidLen(arr1)
         // Check isValidLen(arr2)
         // Return 0 if no error
+        int num;
+        // **Start Loop**
+        for (int i = 0; i < config.size(); i++)
+        {
+            // Check isNumeric() & convert to int if true. Return error code if false
+            if (isNumeric(config[i]))
+            {
+                num = stoi(config[i]);
+            }
+            else
+            {
+                cerr << "Non numeric character provided";
+                return NON_NUMERIC_CHARACTER;
+            }
+
+            // Check isValidNum() and return error code if false
+            if (!isValidNum(num))
+            {
+                cerr << "Invalid index provided" << endl;
+                return INVALID_INDEX;
+            }
+
+            // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
+
+            if (!isInArray(num, array2) && !isInArray(num, array1))
+            {
+                if (i % 2 == 0)
+                {
+                    array1.push_back(num);
+                }
+                else
+                {
+                    array2.push_back(num);
+                }
+            }
+            else
+            {
+                cerr << "This number is already in array 2" << endl;
+                return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+            }
+        }
+        // Check isValidLen()
+        if (!isValidLen(13, array1))
+        {
+            cerr << "Incorrect number of plugboard parameters" << endl;
+            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
+        }
+        // Check isValidLen()
+        if (!isValidLen(13, array2))
+        {
+            cerr << "Incorrect number of plugboard parameters" << endl;
+            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
+        }
     }
-    int reflectNumber(int num)
+    int reflectNumber(int input, int &output)
     {
         // Iterate through array 1 to find input
         // If in array 1, save the index
         // Return reflectedNumber = array2[index]
         // If not in array 1, check the same for array2
+        int arrayPosition;
+        if (isInArray(input, array1, arrayPosition))
+        {
+            output = array2[arrayPosition];
+            cout << "Reflector reflected " << input << " to " << output << endl;
+            // return output;
+        }
+        else if (isInArray(input, array2, arrayPosition))
+        {
+            output = array1[arrayPosition];
+            cout << "Reflector reflected " << input << " to " << output << endl;
+            // return output;
+        }
     }
 };
 
@@ -364,9 +430,10 @@ class OutputBoard
     // Define any public variables and methods here
 public:
     /* This method takes a number and returns the corresponding character */
-    char mapNum2Letter(int num)
+    char mapNum2Letter(int num, char &ch)
     {
-        // Use ASCII to return the num as outputLetter
+        ch = static_cast<char>(num + 65);
+        cout << ch << endl;
     }
 };
 
@@ -381,14 +448,14 @@ int main(int argc, char **argv)
     // argc = 5;
 
     // Correct input, multiple rotors
-    argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    argv[1] = "plugboards/IV.pb";
-    argv[2] = "reflectors/I.rf";
-    argv[3] = "rotors/I.rot";
-    argv[4] = "rotors/II.rot";
-    argv[5] = "rotors/III.rot";
-    argv[6] = "rotors/II.pos";
-    argc = 7;
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "plugboards/IV.pb";
+    // argv[2] = "reflectors/I.rf";
+    // argv[3] = "rotors/I.rot";
+    // argv[4] = "rotors/II.rot";
+    // argv[5] = "rotors/III.rot";
+    // argv[6] = "rotors/II.pos";
+    // argc = 7;
 
     // No plugboard, use default
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
@@ -482,9 +549,12 @@ int main(int argc, char **argv)
     // Turn this into an Enigma Machine object for managing the while loop for inputting?
     // Initialise variable for storing encrypted letter
     int val;
+    char ch;
     vector<Rotor> rotors;
     Plugboard plugboard;
     InputSwitches inputSwitches;
+    Reflector reflector;
+    OutputBoard outputBoard;
     // Rotor rotor;
     // if (rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]) != 0)
     // {
@@ -497,32 +567,101 @@ int main(int argc, char **argv)
         rotor.initialiseRotor(rotorsInput[i], i, rotorPosInput[i]);
         rotors.push_back(rotor);
     }
-
+    reflector.initialiseReflector(reflectorInput);
     // rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]);
-    inputSwitches.readInput(val);
-    plugboard.swapLetter(val, val);
-
-    for (int i = rotorPosInput.size() - 1; i >= 0; i--)
+    int n = 0;
+    while (n < 100)
     {
-        int tempVal = val;
-        if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+        inputSwitches.readInput(val);
+        plugboard.swapLetter(val, val);
+
+        for (int i = rotorPosInput.size() - 1; i >= 0; i--)
         {
-            cout << "Encrypting through first rotor, rotating first" << endl;
-            rotors[i].rotateRotor();
+            int tempVal = val;
+            if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+            {
+                cout << "Encrypting through first rotor, rotating first" << endl;
+                rotors[i].rotateRotor();
+            }
+
+            if (rotors[i].checkNotch() && i != 0)
+            {
+                cout << "Rotated onto a notch, rotating rotor to the left" << endl;
+                rotors[i - 1].rotateRotor();
+            }
+            rotors[i].mapNumber(val, false);
+            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
         }
 
-        if (rotors[i].checkNotch() && i != 0)
+        reflector.reflectNumber(val, val);
+
+        for (int i = 0; i < rotorPosInput.size(); i++)
         {
-            cout << "Rotated onto a notch, rotating rotor to the left" << endl;
-            rotors[i - 1].rotateRotor();
+            int tempVal = val;
+            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+            // {
+            //     cout << "Encrypting through first rotor, rotating first" << endl;
+            //     rotors[i].rotateRotor();
+            // }
+
+            // if (rotors[i].checkNotch() && i != 0)
+            // {
+            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
+            //     rotors[i - 1].rotateRotor();
+            // }
+            rotors[i].mapNumber(val, true);
+            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
         }
-        rotors[i].mapNumber(val);
-        cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
+
+        plugboard.swapLetter(val, val);
+        outputBoard.mapNum2Letter(val, ch);
+
+        inputSwitches.readInput(val);
+        plugboard.swapLetter(val, val);
+
+        for (int i = rotorPosInput.size() - 1; i >= 0; i--)
+        {
+            int tempVal = val;
+            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+            // {
+            //     cout << "Encrypting through first rotor, rotating first" << endl;
+            //     rotors[i].rotateRotor();
+            // }
+
+            // if (rotors[i].checkNotch() && i != 0)
+            // {
+            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
+            //     rotors[i - 1].rotateRotor();
+            // }
+            rotors[i].mapNumber(val, false);
+            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
+        }
+
+        reflector.reflectNumber(val, val);
+
+        for (int i = 0; i < rotorPosInput.size(); i++)
+        {
+            int tempVal = val;
+            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+            // {
+            //     cout << "Encrypting through first rotor, rotating first" << endl;
+            //     rotors[i].rotateRotor();
+            // }
+
+            // if (rotors[i].checkNotch() && i != 0)
+            // {
+            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
+            //     rotors[i - 1].rotateRotor();
+            // }
+            rotors[i].mapNumber(val, true);
+            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
+        }
+
+        plugboard.swapLetter(val, val);
+        outputBoard.mapNum2Letter(val, ch);
+
+        n++;
     }
-
-    // Logic for using rotors here.
-
-    // Rotate rotor to the left (ID -1) if checkNotch returns true;
     return NO_ERROR;
 }
 
