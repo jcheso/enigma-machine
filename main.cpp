@@ -28,24 +28,21 @@ bool isValidLen(int n, vector<int> array);
 bool isInArray(int n, vector<int> array);
 /* This function checks if the value is already in the array and returns the position */
 bool isInArray(int n, vector<int> array, int &arrayPosition);
-/* This class models the Input Switches */
 
+/* This class models the Input Switches */
 class InputSwitches
-{
-    // This vector keeps track of all the input characters
+{ // This vector keeps track of all the input characters
     string input;
     char ch;
     int num;
-
     // Define any public variables and methods here
 public:
     /* This method reads in a character and returns an integer corresponding to it's position in the Alphabet */
     int readInput(int &num)
     {
-        cout << "Enter a capital letter to encrypt: ";
+        cin >> ws;
         cin >> ch;
         num = ch - 65;
-        // cin.ignore(256, '\n');
         if (!isValidNum(num))
         {
             cerr << "Invalid input character, must be a character from A-Z!" << endl;
@@ -91,7 +88,6 @@ public:
         {
             int num;
             // If no plugboard was provided, then convert strings to ints, else perform the checks
-            // **Start Loop**
             for (int i = 0; i < config.size(); i++)
             {
                 // Check isNumeric() & convert to int if true. Return error code if false
@@ -126,7 +122,7 @@ public:
                 }
                 else
                 {
-                    cerr << "This number is already in array 2" << endl;
+                    cerr << "Error in plugboard config" << endl;
                     return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
                 }
             }
@@ -144,29 +140,20 @@ public:
             return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
         }
 
-        cout << "Plugboard initialised as: " << endl;
-        printArray(array1);
-        printArray(array2);
-
-        // Return 0 if no error
-        return 0;
+        return NO_ERROR;
     }
 
     /* This class method takes in an input and swaps it to the correct output */
-    int swapLetter(int input, int &output)
+    void swapLetter(int input, int &output)
     {
         int arrayPosition;
         if (isInArray(input, array1, arrayPosition))
         {
             output = array2[arrayPosition];
-            cout << "Plugboard swapped " << input << " to " << output << endl;
-            // return output;
         }
         else if (isInArray(input, array2, arrayPosition))
         {
             output = array1[arrayPosition];
-            cout << "Plugboard swapped " << input << " to " << output << endl;
-            // return output;
         }
     }
 };
@@ -208,30 +195,22 @@ class Rotor
             cerr << "Invalid index provided" << endl;
             return INVALID_INDEX;
         }
-        // Set startPosition to value
         startPosition = stoi(tempStartPosition);
+        return NO_ERROR;
     }
 
     /* This method sets the start position of the rotor */
-    int setStartPosition()
+    void setStartPosition()
     {
-        // Calculate the required rotations as Modulus of (26-rotorMap[startPosition] + startPosition)
-        // int initialRotations;
-        // initialRotations = (26 - rotorMap[startPosition] + startPosition) % 2;
-        cout << "Initial Rotations required to align A with start index of: " << rotorMap[startPosition] << " = " << startPosition << " rotations" << endl;
-
         for (int i = 0; i < startPosition; i++)
         {
             rotateRotor();
         }
-        cout << "Rotated array is: ";
-        printArray(rotorMap);
         rotations += startPosition;
     }
     // Define any public variables and methods here
 public:
     int rotorNum;
-
     /* This method initialises a rotor from a provided config file */
     int initialiseRotor(vector<string> config, int rotorNum, string rotorPosInput)
     {
@@ -250,14 +229,12 @@ public:
                 cerr << "Non numeric character provided";
                 return NON_NUMERIC_CHARACTER;
             }
-
             // Check isValidNum() and return error code if false
             if (!isValidNum(num))
             {
                 cerr << "Invalid index provided" << endl;
                 return INVALID_INDEX;
             }
-
             // Check isInArray(rotorMap)
             if (isInArray(num, rotorMap) && i < 26)
             {
@@ -279,7 +256,7 @@ public:
         originalRotorMap = rotorMap;
         getStartPosition(rotorPosInput);
         setStartPosition();
-        return 0;
+        return NO_ERROR;
     }
 
     /* This method rotates the rotor specified*/
@@ -295,7 +272,7 @@ public:
         rotorMap[0] = last;
     }
     /* This method maps the input number to the output number */
-    int mapNumber(int &num, bool reflected)
+    void mapNumber(int &num, bool reflected)
     {
         if (!reflected)
         {
@@ -305,20 +282,18 @@ public:
         {
             isInArray(num, rotorMap, num);
         }
-        // If it has a notch
-        // checkNotch()
-        // If it is rotor 1, rotate rotor (does this happen if rotates from a notch as well?)
-        // return the rotorMap[num] as the mappedNumber
     }
     /* This method checks if the notch is at 12 o'clock */
     bool checkNotch()
     {
         // Iterate through notches
-        for (size_t i = 0; i < notches.size(); i++)
-            // Check if the current rotation is at the notch
+        for (int i = 0; i < notches.size(); i++)
+        { // Check if the current rotation is at the notch
             if (rotorMap[0] == originalRotorMap[notches[i]])
+            {
                 return true;
-
+            }
+        }
         return false;
     }
 };
@@ -335,18 +310,6 @@ public:
     /* This method initialises a reflector from a provided config file */
     int initialiseReflector(vector<string> config)
     {
-        // **Start Loop**
-        // Check isNumeric()
-        // Check isValidNum()
-        // Check isInArray(arr1)
-        // Check isInArray(arr2)
-        // If index is odd - assign to input array
-        // If index is even - assign to output array
-        // **End Loop**
-        // Check if length of arrays are less than 13,
-        // Check isValidLen(arr1)
-        // Check isValidLen(arr2)
-        // Return 0 if no error
         int num;
         // **Start Loop**
         for (int i = 0; i < config.size(); i++)
@@ -361,16 +324,13 @@ public:
                 cerr << "Non numeric character provided";
                 return NON_NUMERIC_CHARACTER;
             }
-
             // Check isValidNum() and return error code if false
             if (!isValidNum(num))
             {
                 cerr << "Invalid index provided" << endl;
                 return INVALID_INDEX;
             }
-
             // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
-
             if (!isInArray(num, array2) && !isInArray(num, array1))
             {
                 if (i % 2 == 0)
@@ -400,25 +360,18 @@ public:
             cerr << "Incorrect number of plugboard parameters" << endl;
             return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
         }
+        return NO_ERROR;
     }
-    int reflectNumber(int input, int &output)
+    void reflectNumber(int input, int &output)
     {
-        // Iterate through array 1 to find input
-        // If in array 1, save the index
-        // Return reflectedNumber = array2[index]
-        // If not in array 1, check the same for array2
         int arrayPosition;
         if (isInArray(input, array1, arrayPosition))
         {
             output = array2[arrayPosition];
-            cout << "Reflector reflected " << input << " to " << output << endl;
-            // return output;
         }
         else if (isInArray(input, array2, arrayPosition))
         {
             output = array1[arrayPosition];
-            cout << "Reflector reflected " << input << " to " << output << endl;
-            // return output;
         }
     }
 };
@@ -430,24 +383,17 @@ class OutputBoard
     // Define any public variables and methods here
 public:
     /* This method takes a number and returns the corresponding character */
-    char mapNum2Letter(int num, char &ch)
+    void mapNum2Letter(int num, char ch)
     {
         ch = static_cast<char>(num + 65);
-        cout << ch << endl;
+        cout << ch;
     }
 };
+/* This function runs the Enigma Machine */
+int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string> rotorPosInput, vector<Rotor> rotors, int &val, char &ch, Reflector &reflector, OutputBoard &outputBoard);
 
 int main(int argc, char **argv)
 {
-    // Correct input
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "plugboards/IV.pb";
-    // argv[2] = "reflectors/I.rf";
-    // argv[3] = "rotors/II.rot";
-    // argv[4] = "rotors/I.pos";
-    // argc = 5;
-
-    // Correct input, multiple rotors
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
     // argv[1] = "plugboards/IV.pb";
     // argv[2] = "reflectors/I.rf";
@@ -457,46 +403,16 @@ int main(int argc, char **argv)
     // argv[6] = "rotors/II.pos";
     // argc = 7;
 
-    // No plugboard, use default
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "reflectors/I.rf";
-    // argv[2] = "rotors/I.rot";
-    // argv[3] = "rotors/II.rot";
-    // argv[4] = "rotors/III.rot";
-    // argv[5] = "rotors/I.pos";
-    // argc = 6;
-
-    // No plugboard or rotor, invalid
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "reflectors/I.rf";
-    // argv[2] = "rotors/II.rot";
-    // argc = 3;
-
-    // Plugboard, but no rotor - invalid
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "plugboards/IV.pb";
-    // argv[2] = "reflectors/I.rf";
-    // argv[3] = "rotors/II.rot";
-    // argc = 4;
-
-    cout << "Have " << argc << " arguments:" << endl;
-
-    for (size_t i = 0; i < argc; i++)
-    {
-        cout << argv[i] << endl;
-    }
-
     // Initialise vectors to store inputs
     vector<string> plugboardInput;
     vector<string> reflectorInput;
-    vector<string> rotorsInput[10];
+    vector<string> rotorsInput[100];
     vector<string> rotorPosInput;
 
     // Check if Plugboard was supplied, if not default to the standard mapping
     string plugboardTest = argv[1];
     if (!plugboardSupplied(plugboardTest))
     {
-        cout << "Plugboard not supplied, defaulting to standard mapping" << endl;
         for (int i = 0; i < 26; i++)
         {
             plugboardInput.push_back(to_string(i));
@@ -504,62 +420,46 @@ int main(int argc, char **argv)
         }
 
         parseInputStrings(argv[1], reflectorInput);
-        printArray(reflectorInput);
 
         for (int i = 0; i < argc - 4; i++)
         {
             parseInputStrings(argv[2 + i], rotorsInput[i]);
-            printArray(rotorsInput[i]);
         }
 
         parseInputStrings(argv[argc - 1], rotorPosInput);
-        printArray(rotorPosInput);
     }
     else
     {
-        cout << "Plugboard provided, saving to variable" << endl;
         parseInputStrings(argv[1], plugboardInput);
-        printArray(plugboardInput);
-
         parseInputStrings(argv[2], reflectorInput);
-        printArray(reflectorInput);
 
         for (int i = 0; i < argc - 4; i++)
         {
             parseInputStrings(argv[3 + i], rotorsInput[i]);
-            printArray(rotorsInput[i]);
         }
-
         parseInputStrings(argv[argc - 1], rotorPosInput);
-        printArray(rotorPosInput);
     }
 
     // Check if rotor start positions are supplied, throw an error if not
     string rotorPosTest = argv[argc - 1];
     if (!rotorSupplied(rotorPosTest))
     {
-        cout << "Invalid rotor configuration" << endl;
+        cerr << "Invalid rotor configuration" << endl;
         return INSUFFICIENT_NUMBER_OF_PARAMETERS;
     }
-    else
-    {
-        cout << "Valid rotor configuration" << endl;
-    }
 
-    // Turn this into an Enigma Machine object for managing the while loop for inputting?
     // Initialise variable for storing encrypted letter
     int val;
     char ch;
+
+    // Construct objects
     vector<Rotor> rotors;
     Plugboard plugboard;
     InputSwitches inputSwitches;
     Reflector reflector;
     OutputBoard outputBoard;
-    // Rotor rotor;
-    // if (rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]) != 0)
-    // {
-    //     return rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]);
-    // }
+
+    // Run initialisation methods on objects
     plugboard.initialisePlugboard(plugboardInput);
     for (int i = 0; i < rotorPosInput.size(); i++)
     {
@@ -568,125 +468,89 @@ int main(int argc, char **argv)
         rotors.push_back(rotor);
     }
     reflector.initialiseReflector(reflectorInput);
-    // rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]);
+
     int n = 0;
-    while (n < 100)
+
+    // do
+    // {
+    //     n = runEnigma(inputSwitches, plugboard, rotorPosInput, rotors, val, ch, reflector, outputBoard);
+    // } while (n == 0);
+
+    while (n < 26)
     {
         inputSwitches.readInput(val);
         plugboard.swapLetter(val, val);
-
         for (int i = rotorPosInput.size() - 1; i >= 0; i--)
         {
             int tempVal = val;
             if (rotors[i].rotorNum == rotorPosInput.size() - 1)
             {
-                cout << "Encrypting through first rotor, rotating first" << endl;
                 rotors[i].rotateRotor();
             }
 
             if (rotors[i].checkNotch() && i != 0)
             {
-                cout << "Rotated onto a notch, rotating rotor to the left" << endl;
                 rotors[i - 1].rotateRotor();
             }
             rotors[i].mapNumber(val, false);
-            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
         }
-
         reflector.reflectNumber(val, val);
-
         for (int i = 0; i < rotorPosInput.size(); i++)
         {
             int tempVal = val;
-            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-            // {
-            //     cout << "Encrypting through first rotor, rotating first" << endl;
-            //     rotors[i].rotateRotor();
-            // }
-
-            // if (rotors[i].checkNotch() && i != 0)
-            // {
-            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
-            //     rotors[i - 1].rotateRotor();
-            // }
             rotors[i].mapNumber(val, true);
-            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
         }
-
         plugboard.swapLetter(val, val);
         outputBoard.mapNum2Letter(val, ch);
-
-        inputSwitches.readInput(val);
-        plugboard.swapLetter(val, val);
-
-        for (int i = rotorPosInput.size() - 1; i >= 0; i--)
-        {
-            int tempVal = val;
-            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-            // {
-            //     cout << "Encrypting through first rotor, rotating first" << endl;
-            //     rotors[i].rotateRotor();
-            // }
-
-            // if (rotors[i].checkNotch() && i != 0)
-            // {
-            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
-            //     rotors[i - 1].rotateRotor();
-            // }
-            rotors[i].mapNumber(val, false);
-            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
-        }
-
-        reflector.reflectNumber(val, val);
-
-        for (int i = 0; i < rotorPosInput.size(); i++)
-        {
-            int tempVal = val;
-            // if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-            // {
-            //     cout << "Encrypting through first rotor, rotating first" << endl;
-            //     rotors[i].rotateRotor();
-            // }
-
-            // if (rotors[i].checkNotch() && i != 0)
-            // {
-            //     cout << "Rotated onto a notch, rotating rotor to the left" << endl;
-            //     rotors[i - 1].rotateRotor();
-            // }
-            rotors[i].mapNumber(val, true);
-            cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
-        }
-
-        plugboard.swapLetter(val, val);
-        outputBoard.mapNum2Letter(val, ch);
-
         n++;
     }
+    return 0;
+}
+
+int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string> rotorPosInput, vector<Rotor> rotors, int &val, char &ch, Reflector &reflector, OutputBoard &outputBoard)
+{
+    inputSwitches.readInput(val);
+    plugboard.swapLetter(val, val);
+
+    for (int i = rotorPosInput.size() - 1; i >= 0; i--)
+    {
+        int tempVal = val;
+        if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+        {
+            rotors[i].rotateRotor();
+        }
+
+        if (rotors[i].checkNotch() && i != 0)
+        {
+            rotors[i - 1].rotateRotor();
+        }
+        rotors[i].mapNumber(val, false);
+    }
+    reflector.reflectNumber(val, val);
+    for (int i = 0; i < rotorPosInput.size(); i++)
+    {
+        int tempVal = val;
+        rotors[i].mapNumber(val, true);
+    }
+    plugboard.swapLetter(val, val);
+    outputBoard.mapNum2Letter(val, ch);
     return NO_ERROR;
 }
 
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
 {
-    // Function to read in the arguments
-    // Pass a ref to the arrays in main
-    // Read the file name of the dir so we know what they are
-    // Create an in stream and read the file contents into an array for each file name
-    cout << "------" << endl;
-    cout << "Reading array in: ";
-    cout << arrayIn << endl;
-
     // Open an input file stream
     ifstream input;
     input.open(arrayIn);
 
     // Create variables to store the character, and each set of characters that complete the number
     char ch;
-    string num;
+    string stringOfNums;
 
     if (input.fail())
     {
         cerr << "Cannot open file" << endl;
-        return 11;
+        return ERROR_OPENING_CONFIGURATION_FILE;
     }
 
     int i = 0;
@@ -698,56 +562,34 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
         // If it is not a space or end of file, copy the numbers to a temp string
         if (ch != ' ' && ch != '\n')
         {
-            num += ch;
+            stringOfNums += ch;
         }
         // Conver the temp string to an int and store it in the array
         else if (ch != '\n')
         {
-            arrayOut.push_back(num);
-            num = "";
+            arrayOut.push_back(stringOfNums);
+            stringOfNums = "";
             i++;
         }
         else if (ch == '\n')
         {
-            arrayOut.push_back(num);
+            arrayOut.push_back(stringOfNums);
             break;
         }
     }
 
     input.close();
 
-    printArray(arrayOut);
+    // printArray(arrayOut);
 
-    return 0;
-}
-
-void printArray(vector<string> &array)
-{
-    // Check array
-    cout << "Array is: ";
-    for (size_t i = 0; i < array.size(); i++)
-    {
-        cout << array[i] << ' ';
-    }
-    cout << endl;
-}
-
-void printArray(vector<int> &array)
-{
-    // Check array
-    cout << "Array is: ";
-    for (size_t i = 0; i < array.size(); i++)
-    {
-        cout << array[i] << ' ';
-    }
-    cout << endl;
+    return NO_ERROR;
 }
 
 bool plugboardSupplied(string plugboardTest)
 {
     if (plugboardTest.back() == 'b')
     {
-        cout << "Plugboard supplied" << endl;
+        // cout << "Plugboard supplied" << endl;
         return true;
     }
     else
@@ -760,7 +602,7 @@ bool rotorSupplied(string rotorPosTest)
 {
     if (rotorPosTest.back() == 's')
     {
-        cout << "Rotor Starting Positions Supplied" << endl;
+        // cout << "Rotor Starting Positions Supplied" << endl;
         return true;
     }
     else
