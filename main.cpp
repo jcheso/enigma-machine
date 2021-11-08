@@ -37,17 +37,24 @@ class InputSwitches
 {
     // This vector keeps track of all the input characters
     string input;
+    char ch;
+    int num;
 
-public:
     // Define any public variables and methods here
+public:
     /* This method reads in a character and returns an integer corresponding to it's position in the Alphabet */
-    int readInput(char ch)
+    int readInput(int &num)
     {
-        // Add ch to string for record keeping
-        // Ignore whitespace
-        // Convert char to int
-        // Check if input isValidNum
-        // Return the int
+        cout << "Enter a capital letter to encrypt: ";
+        cin >> ch;
+        num = ch - 65;
+        // cin.ignore(256, '\n');
+        if (!isValidNum(num))
+        {
+            cerr << "Invalid input character, must be a character from A-Z!" << endl;
+            return INVALID_INPUT_CHARACTER;
+        }
+        return NO_ERROR;
     }
 };
 
@@ -61,13 +68,13 @@ class Plugboard
     /* This method fills the remainder of the plugboard with the missing characters */
     void fillArray(vector<int> &array1, vector<int> &array2)
     {
-
         // Iterate from 0 to 25 and check if the value is in the input array
         for (int i = array1.size(); i < 13; i++)
         {
             int sum2add;
             for (int j = 0; j < 26; j++)
             {
+                // If not in index, append value to input and output arrays.
                 if (!isInArray(j, array1) && !isInArray(j, array2))
                 {
                     sum2add = j;
@@ -76,11 +83,7 @@ class Plugboard
             }
             array1.push_back(sum2add);
             array2.push_back(sum2add);
-            printArray(array1);
-            printArray(array2);
         }
-
-        // If not in index, append value to input and output arrays.
     };
     // Define any public variables and methods here
 public:
@@ -110,7 +113,7 @@ public:
                 if (!isValidNum(num))
                 {
                     cerr << "Invalid index provided" << endl;
-                    return NON_NUMERIC_CHARACTER;
+                    return INVALID_INDEX;
                 }
 
                 // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
@@ -118,7 +121,6 @@ public:
                 {
                     if (!isInArray(num, array1))
                     {
-                        cout << "Adding " << num << " to input array" << endl;
                         array1.push_back(num);
                     }
                     else
@@ -131,7 +133,6 @@ public:
                 {
                     if (!isInArray(num, array2))
                     {
-                        cout << "Adding " << num << " to output array" << endl;
                         array2.push_back(num);
                     }
                     else
@@ -141,37 +142,38 @@ public:
                     }
                 }
             }
-            printArray(array1);
-            printArray(array2);
 
+            // Check if length of input array is less than 26, if so run fillArray on both arrays
             if (config.size() < 26)
             {
                 fillArray(array1, array2);
             }
-            // Check if length of input array is less than 52, if so run fillArray on both arrays
             // Check isValidLen()
+            if (!isValidLen(13, array1))
+            {
+                cerr << "Incorrect number of plugboard parameters" << endl;
+                return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
+            }
         }
-
         // Return 0 if no error
+        return 0;
     }
 
     /* This class method takes in an input and swaps it to the correct output */
-    int swapLetter(int input)
+    int swapLetter(int input, int &output)
     {
-        int arrayPosition, output;
+        int arrayPosition;
         if (isInArray(input, array1, arrayPosition))
         {
             output = array2[arrayPosition];
-            cout << "Input letter: " << input << " swapped to: " << output << endl;
-            ;
-            return output;
+            cout << "Plugboard swapped " << input << " to " << output << endl;
+            // return output;
         }
         else if (isInArray(input, array2, arrayPosition))
         {
             output = array1[arrayPosition];
-            cout << "Input letter: " << input << "swapped to: " << output << endl;
-            ;
-            return output;
+            cout << "Plugboard swapped " << input << " to " << output << endl;
+            // return output;
         }
     }
 };
@@ -183,71 +185,141 @@ class Rotor
     vector<int> rotorMap;
     vector<int> originalRotorMap;
     vector<int> notches;
-    bool hasNotch;
+    bool hasNotch = false;
     int rotations = 0;
     int startPosition;
     int mappedNumber;
-    // Need a constructor to set the rotorNum on initialisation
-    int rotorNum;
-    /* This method checks if the notch is at 12 o'clock */
-    bool checkNotch()
+
+    /* This method gets the start position of the rotor from the config provided */
+    int getStartPosition(string config)
     {
-        // Iterate through notches
-        // Check if the current rotation is at the notch
-        // notchStartPosition = originalRotorMap[notch]
-        // currentNotchPosition = notchStartPosition + rotations
-        // If mod(notchStartPosition + Rotations) = 0 then
-        // Rotate rotor to the left (ID -1)
+        string tempStartPosition;
+        // If does not exist, exit with NO_ROTOR_STARTING_POSITION
+        try
+        {
+            tempStartPosition = config;
+        }
+        catch (...)
+        {
+            return NO_ROTOR_STARTING_POSITION;
+        }
+        // Check isNumeric()
+        if (!isNumeric(tempStartPosition))
+        {
+            cerr << "Non numeric character provided";
+            return NON_NUMERIC_CHARACTER;
+        }
+        // Check isValidNum() and return error code if false
+        if (!isValidNum(startPosition))
+        {
+            cerr << "Invalid index provided" << endl;
+            return INVALID_INDEX;
+        }
+        // Set startPosition to value
+        startPosition = stoi(tempStartPosition);
     }
 
     /* This method sets the start position of the rotor */
     int setStartPosition()
     {
         // Calculate the required rotations as Modulus of (26-rotorMap[startPosition] + startPosition)
-        // Call rotateRotorRight with the number of rotations required to set the correct start position
+        // int initialRotations;
+        // initialRotations = (26 - rotorMap[startPosition] + startPosition) % 2;
+        cout << "Initial Rotations required to align A with start index of: " << rotorMap[startPosition] << " = " << startPosition << " rotations" << endl;
+
+        for (int i = 0; i < startPosition; i++)
+        {
+            rotateRotor();
+        }
+        cout << "Rotated array is: ";
+        printArray(rotorMap);
+        rotations += startPosition;
     }
     // Define any public variables and methods here
 public:
+    int rotorNum;
+
     /* This method initialises a rotor from a provided config file */
-    int initialiseRotor(vector<string> config)
+    int initialiseRotor(vector<string> config, int rotorNum, string rotorPosInput)
     {
+        this->rotorNum = rotorNum;
         // Initialise an iterator
-        // Iterate through the array up to 25 digits
-        // Check isInArray(rotorMap)
-        // Check isNumeric()
-        // Check isNumValid()
-        // Append to rotorMap
-        // Check isValidLen(rotorMap)
-        // Check len of config to see if there are notches, if no notches set to false; else:
-        // Iterate through the array from 26-len(array)
-        // Check isInArray(notches)
-        // Check isNumeric()
-        // Check isNumValid()
-        // Append to notches
-        // Call getStartPosition()
-        // Call setStartPosition()
+        for (int i = 0; i < config.size(); i++)
+        {
+            int num;
+            // Check isNumeric() & convert to int if true. Return error code if false
+            if (isNumeric(config[i]))
+            {
+                num = stoi(config[i]);
+            }
+            else
+            {
+                cerr << "Non numeric character provided";
+                return NON_NUMERIC_CHARACTER;
+            }
+
+            // Check isValidNum() and return error code if false
+            if (!isValidNum(num))
+            {
+                cerr << "Invalid index provided" << endl;
+                return INVALID_INDEX;
+            }
+
+            // Check isInArray(rotorMap)
+            if (isInArray(num, rotorMap) && i < 26)
+            {
+                cerr << "Invalid Rotor Mapping" << endl;
+                return INVALID_ROTOR_MAPPING;
+            }
+            // Add to rotorMap if its in the first 25 digits
+            if (i < 26)
+            {
+                rotorMap.push_back(num);
+            }
+            // Add to notches if its past the first 25 digits and set this rotor to have notches
+            if (i >= 26)
+            {
+                notches.push_back(num);
+                hasNotch = true;
+            }
+        }
+        originalRotorMap = rotorMap;
+        getStartPosition(rotorPosInput);
+        setStartPosition();
+        return 0;
     }
-    /* This method gets the start position of the rotor from the config provided */
-    int getStartPosition(vector<int> config)
-    {
-        // Get the rotor start position corresponding to the rotorNum
-        // If does not exist, exit with NO_ROTOR_STARTING_POSITION
-        // Check isNumeric()
-        // Check isValidNum()
-        // Set startPosition to value
-    }
+
     /* This method rotates the rotor specified*/
-    void rotateRotor(int rotorNum)
+    void rotateRotor()
     {
         // Shift rotorMap array to the right by one
+        int last = rotorMap[rotorMap.size() - 1];
+        for (int i = rotorMap.size() - 1; i > 0; i--)
+        {
+            rotorMap[i] = rotorMap[i - 1];
+        }
+
+        rotorMap[0] = last;
     }
     /* This method maps the input number to the output number */
-    int mapNumber(int num)
+    int mapNumber(int &num)
     {
+        num = rotorMap[num];
         // If it has a notch
         // checkNotch()
         // If it is rotor 1, rotate rotor (does this happen if rotates from a notch as well?)
         // return the rotorMap[num] as the mappedNumber
+    }
+    /* This method checks if the notch is at 12 o'clock */
+    bool checkNotch()
+    {
+        // Iterate through notches
+        for (size_t i = 0; i < notches.size(); i++)
+            // Check if the current rotation is at the notch
+            if (rotorMap[0] == originalRotorMap[notches[i]])
+                return true;
+
+        return false;
     }
 };
 
@@ -315,7 +387,7 @@ int main(int argc, char **argv)
     argv[3] = "rotors/I.rot";
     argv[4] = "rotors/II.rot";
     argv[5] = "rotors/III.rot";
-    argv[6] = "rotors/I.pos";
+    argv[6] = "rotors/II.pos";
     argc = 7;
 
     // No plugboard, use default
@@ -407,12 +479,51 @@ int main(int argc, char **argv)
         cout << "Valid rotor configuration" << endl;
     }
 
+    // Turn this into an Enigma Machine object for managing the while loop for inputting?
+    // Initialise variable for storing encrypted letter
     int val;
+    vector<Rotor> rotors;
     Plugboard plugboard;
+    InputSwitches inputSwitches;
+    // Rotor rotor;
+    // if (rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]) != 0)
+    // {
+    //     return rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]);
+    // }
     plugboard.initialisePlugboard(plugboardInput);
-    val = plugboard.swapLetter(1);
-    cout << val << endl;
-    return 0;
+    for (int i = 0; i < rotorPosInput.size(); i++)
+    {
+        Rotor rotor;
+        rotor.initialiseRotor(rotorsInput[i], i, rotorPosInput[i]);
+        rotors.push_back(rotor);
+    }
+
+    // rotor.initialiseRotor(rotorsInput[0], 0, rotorPosInput[rotorPosInput.size() - 1]);
+    inputSwitches.readInput(val);
+    plugboard.swapLetter(val, val);
+
+    for (int i = rotorPosInput.size() - 1; i >= 0; i--)
+    {
+        int tempVal = val;
+        if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+        {
+            cout << "Encrypting through first rotor, rotating first" << endl;
+            rotors[i].rotateRotor();
+        }
+
+        if (rotors[i].checkNotch() && i != 0)
+        {
+            cout << "Rotated onto a notch, rotating rotor to the left" << endl;
+            rotors[i - 1].rotateRotor();
+        }
+        rotors[i].mapNumber(val);
+        cout << "Rotor " << i << " encrypted " << tempVal << " to " << val << endl;
+    }
+
+    // Logic for using rotors here.
+
+    // Rotate rotor to the left (ID -1) if checkNotch returns true;
+    return NO_ERROR;
 }
 
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
@@ -521,7 +632,6 @@ bool rotorSupplied(string rotorPosTest)
 
 bool isNumeric(string ch)
 {
-    cout << ch << endl;
     try
     {
         int num = stoi(ch);
@@ -569,4 +679,13 @@ bool isInArray(int n, vector<int> array, int &arrayPosition)
         }
     }
     return false;
+}
+
+bool isValidLen(int n, vector<int> array)
+{
+    if (array.size() == n)
+        return true;
+
+    else
+        return false;
 }
