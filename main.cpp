@@ -92,9 +92,7 @@ public:
             {
                 // Check isNumeric() & convert to int if true. Return error code if false
                 if (isNumeric(config[i]))
-                {
                     num = stoi(config[i]);
-                }
                 else
                 {
                     cerr << "Non numeric character provided";
@@ -130,9 +128,8 @@ public:
 
         // Check if length of input array is less than 26, if so run fillArray on both arrays
         if (config.size() < 26)
-        {
             fillArray(array1, array2, array2.size());
-        }
+
         // Check isValidLen()
         if (!isValidLen((26 - (config.size() / 2)), array1))
         {
@@ -148,13 +145,9 @@ public:
     {
         int arrayPosition;
         if (isInArray(input, array1, arrayPosition))
-        {
             output = array2[arrayPosition];
-        }
         else if (isInArray(input, array2, arrayPosition))
-        {
             output = array1[arrayPosition];
-        }
     }
 };
 
@@ -189,13 +182,14 @@ class Rotor
             cerr << "Non numeric character provided";
             return NON_NUMERIC_CHARACTER;
         }
+        startPosition = stoi(tempStartPosition);
         // Check isValidNum() and return error code if false
         if (!isValidNum(startPosition))
         {
             cerr << "Invalid index provided" << endl;
             return INVALID_INDEX;
         }
-        startPosition = stoi(tempStartPosition);
+
         return NO_ERROR;
     }
 
@@ -203,9 +197,8 @@ class Rotor
     void setStartPosition()
     {
         for (int i = 0; i < startPosition; i++)
-        {
             rotateRotor();
-        }
+
         rotations += startPosition;
     }
     // Define any public variables and methods here
@@ -221,9 +214,7 @@ public:
             int num;
             // Check isNumeric() & convert to int if true. Return error code if false
             if (isNumeric(config[i]))
-            {
                 num = stoi(config[i]);
-            }
             else
             {
                 cerr << "Non numeric character provided";
@@ -243,9 +234,7 @@ public:
             }
             // Add to rotorMap if its in the first 25 digits
             if (i < 26)
-            {
                 rotorMap.push_back(num);
-            }
             // Add to notches if its past the first 25 digits and set this rotor to have notches
             if (i >= 26)
             {
@@ -265,9 +254,7 @@ public:
         // Shift rotorMap array to the right by one
         int last = rotorMap[rotorMap.size() - 1];
         for (int i = rotorMap.size() - 1; i > 0; i--)
-        {
             rotorMap[i] = rotorMap[i - 1];
-        }
 
         rotorMap[0] = last;
     }
@@ -275,13 +262,9 @@ public:
     void mapNumber(int &num, bool reflected)
     {
         if (!reflected)
-        {
             num = rotorMap[num];
-        }
         else
-        {
             isInArray(num, rotorMap, num);
-        }
     }
     /* This method checks if the notch is at 12 o'clock */
     bool checkNotch()
@@ -290,9 +273,7 @@ public:
         for (int i = 0; i < notches.size(); i++)
         { // Check if the current rotation is at the notch
             if (rotorMap[0] == originalRotorMap[notches[i]])
-            {
                 return true;
-            }
         }
         return false;
     }
@@ -316,9 +297,7 @@ public:
         {
             // Check isNumeric() & convert to int if true. Return error code if false
             if (isNumeric(config[i]))
-            {
                 num = stoi(config[i]);
-            }
             else
             {
                 cerr << "Non numeric character provided";
@@ -334,13 +313,9 @@ public:
             if (!isInArray(num, array2) && !isInArray(num, array1))
             {
                 if (i % 2 == 0)
-                {
                     array1.push_back(num);
-                }
                 else
-                {
                     array2.push_back(num);
-                }
             }
             else
             {
@@ -366,13 +341,9 @@ public:
     {
         int arrayPosition;
         if (isInArray(input, array1, arrayPosition))
-        {
             output = array2[arrayPosition];
-        }
         else if (isInArray(input, array2, arrayPosition))
-        {
             output = array1[arrayPosition];
-        }
     }
 };
 
@@ -422,9 +393,7 @@ int main(int argc, char **argv)
         parseInputStrings(argv[1], reflectorInput);
 
         for (int i = 0; i < argc - 4; i++)
-        {
             parseInputStrings(argv[2 + i], rotorsInput[i]);
-        }
 
         parseInputStrings(argv[argc - 1], rotorPosInput);
     }
@@ -434,9 +403,8 @@ int main(int argc, char **argv)
         parseInputStrings(argv[2], reflectorInput);
 
         for (int i = 0; i < argc - 4; i++)
-        {
             parseInputStrings(argv[3 + i], rotorsInput[i]);
-        }
+
         parseInputStrings(argv[argc - 1], rotorPosInput);
     }
 
@@ -469,14 +437,12 @@ int main(int argc, char **argv)
     }
     reflector.initialiseReflector(reflectorInput);
 
-    int n = 0;
-
     // do
     // {
     //     n = runEnigma(inputSwitches, plugboard, rotorPosInput, rotors, val, ch, reflector, outputBoard);
     // } while (n == 0);
 
-    while (n < 26)
+    while (!cin.eof())
     {
         inputSwitches.readInput(val);
         plugboard.swapLetter(val, val);
@@ -484,14 +450,10 @@ int main(int argc, char **argv)
         {
             int tempVal = val;
             if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-            {
                 rotors[i].rotateRotor();
-            }
 
             if (rotors[i].checkNotch() && i != 0)
-            {
                 rotors[i - 1].rotateRotor();
-            }
             rotors[i].mapNumber(val, false);
         }
         reflector.reflectNumber(val, val);
@@ -502,28 +464,22 @@ int main(int argc, char **argv)
         }
         plugboard.swapLetter(val, val);
         outputBoard.mapNum2Letter(val, ch);
-        n++;
     }
-    return 0;
+    return NO_ERROR;
 }
 
 int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string> rotorPosInput, vector<Rotor> rotors, int &val, char &ch, Reflector &reflector, OutputBoard &outputBoard)
 {
     inputSwitches.readInput(val);
     plugboard.swapLetter(val, val);
-
     for (int i = rotorPosInput.size() - 1; i >= 0; i--)
     {
         int tempVal = val;
         if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-        {
             rotors[i].rotateRotor();
-        }
 
         if (rotors[i].checkNotch() && i != 0)
-        {
             rotors[i - 1].rotateRotor();
-        }
         rotors[i].mapNumber(val, false);
     }
     reflector.reflectNumber(val, val);
@@ -534,7 +490,6 @@ int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string>
     }
     plugboard.swapLetter(val, val);
     outputBoard.mapNum2Letter(val, ch);
-    return NO_ERROR;
 }
 
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
@@ -627,7 +582,7 @@ bool isNumeric(string ch)
 /* This function checks if the input is in the range of 0-25 */
 bool isValidNum(int num)
 {
-    if (num >= 0 || num <= 25)
+    if (num > -1 && num < 26)
     {
         return true;
     }
