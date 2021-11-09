@@ -45,8 +45,8 @@ public:
         num = ch - 65;
         if (!isValidNum(num))
         {
-            cerr << "Invalid input character, must be a character from A-Z!" << endl;
-            return INVALID_INPUT_CHARACTER;
+            cerr << ch << " is not a valid input character (input characters must be upper case letters A-Z)!" << endl;
+            throw(INVALID_INPUT_CHARACTER);
         }
         return NO_ERROR;
     }
@@ -87,6 +87,14 @@ public:
         if (plugboardSupplied)
         {
             int num;
+
+            // Check isValidLen()
+            if ((config.size() % 2 != 0) || (config.size() > 26))
+            {
+                cerr << "Incorrect number of parameters in plugboard file plugboard.pb" << endl;
+                throw(INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS);
+            }
+
             // If no plugboard was provided, then convert strings to ints, else perform the checks
             for (int i = 0; i < config.size(); i++)
             {
@@ -95,15 +103,15 @@ public:
                     num = stoi(config[i]);
                 else
                 {
-                    cerr << "Non numeric character provided";
-                    return NON_NUMERIC_CHARACTER;
+                    cerr << "Non-numeric character in plugboard file plugboard.pb" << endl;
+                    throw(NON_NUMERIC_CHARACTER);
                 }
 
                 // Check isValidNum() and return error code if false
                 if (!isValidNum(num))
                 {
                     cerr << "Invalid index provided" << endl;
-                    return INVALID_INDEX;
+                    throw(INVALID_INDEX);
                 }
 
                 // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
@@ -121,7 +129,7 @@ public:
                 else
                 {
                     cerr << "Error in plugboard config" << endl;
-                    return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                    throw(IMPOSSIBLE_PLUGBOARD_CONFIGURATION);
                 }
             }
         }
@@ -129,13 +137,6 @@ public:
         // Check if length of input array is less than 26, if so run fillArray on both arrays
         if (config.size() < 26)
             fillArray(array1, array2, array2.size());
-
-        // Check isValidLen()
-        if (!isValidLen((26 - (config.size() / 2)), array1))
-        {
-            cerr << "Incorrect number of plugboard parameters" << endl;
-            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
-        }
 
         return NO_ERROR;
     }
@@ -174,20 +175,20 @@ class Rotor
         }
         catch (...)
         {
-            return NO_ROTOR_STARTING_POSITION;
+            throw(NO_ROTOR_STARTING_POSITION);
         }
         // Check isNumeric()
         if (!isNumeric(tempStartPosition))
         {
-            cerr << "Non numeric character provided";
-            return NON_NUMERIC_CHARACTER;
+            cerr << "Non-numeric character in rotor positions file rotor.pos";
+            throw(NON_NUMERIC_CHARACTER);
         }
         startPosition = stoi(tempStartPosition);
         // Check isValidNum() and return error code if false
         if (!isValidNum(startPosition))
         {
             cerr << "Invalid index provided" << endl;
-            return INVALID_INDEX;
+            throw(INVALID_INDEX);
         }
 
         return NO_ERROR;
@@ -198,7 +199,6 @@ class Rotor
     {
         for (int i = 0; i < startPosition; i++)
             rotateRotor();
-
         rotations += startPosition;
     }
     // Define any public variables and methods here
@@ -209,6 +209,14 @@ public:
     {
         this->rotorNum = rotorNum;
         // Initialise an iterator
+
+        // Check isValidLen()
+        if (config.size() < 26)
+        {
+            cerr << "Not all inputs mapped in rotor file: rotor.rot" << endl;
+            throw(INVALID_ROTOR_MAPPING);
+        }
+
         for (int i = 0; i < config.size(); i++)
         {
             int num;
@@ -217,20 +225,21 @@ public:
                 num = stoi(config[i]);
             else
             {
-                cerr << "Non numeric character provided";
-                return NON_NUMERIC_CHARACTER;
+                cerr << "Non-numeric character for mapping in rotor file rotor.rot" << endl;
+                throw(NON_NUMERIC_CHARACTER);
             }
             // Check isValidNum() and return error code if false
             if (!isValidNum(num))
             {
                 cerr << "Invalid index provided" << endl;
-                return INVALID_INDEX;
+                throw(INVALID_INDEX);
             }
             // Check isInArray(rotorMap)
-            if (isInArray(num, rotorMap) && i < 26)
+            int index;
+            if (isInArray(num, rotorMap, index) && i < 26)
             {
-                cerr << "Invalid Rotor Mapping" << endl;
-                return INVALID_ROTOR_MAPPING;
+                cerr << "Invalid mapping of input " << i << " to output " << num << " (output " << num << " is already mapped to from input " << index << ")" << endl;
+                throw(INVALID_ROTOR_MAPPING);
             }
             // Add to rotorMap if its in the first 25 digits
             if (i < 26)
@@ -292,7 +301,17 @@ public:
     int initialiseReflector(vector<string> config)
     {
         int num;
-        // **Start Loop**
+        // Check isValidLen()
+        if ((config.size() % 2 == 0) && config.size() != 26)
+        {
+            cerr << "Insufficient number of mappings in reflector file: reflector.rf" << endl;
+            throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
+        }
+        {
+            cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
+            throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
+        }
+
         for (int i = 0; i < config.size(); i++)
         {
             // Check isNumeric() & convert to int if true. Return error code if false
@@ -300,14 +319,15 @@ public:
                 num = stoi(config[i]);
             else
             {
-                cerr << "Non numeric character provided";
-                return NON_NUMERIC_CHARACTER;
+                cerr << "Non-numeric character in reflector file: reflector.rf" << endl;
+                ;
+                throw(NON_NUMERIC_CHARACTER);
             }
             // Check isValidNum() and return error code if false
             if (!isValidNum(num))
             {
                 cerr << "Invalid index provided" << endl;
-                return INVALID_INDEX;
+                throw(INVALID_INDEX);
             }
             // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
             if (!isInArray(num, array2) && !isInArray(num, array1))
@@ -319,21 +339,9 @@ public:
             }
             else
             {
-                cerr << "This number is already in array 2" << endl;
-                return IMPOSSIBLE_PLUGBOARD_CONFIGURATION;
+                cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
+                throw(IMPOSSIBLE_PLUGBOARD_CONFIGURATION);
             }
-        }
-        // Check isValidLen()
-        if (!isValidLen(13, array1))
-        {
-            cerr << "Incorrect number of plugboard parameters" << endl;
-            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
-        }
-        // Check isValidLen()
-        if (!isValidLen(13, array2))
-        {
-            cerr << "Incorrect number of plugboard parameters" << endl;
-            return INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS;
         }
         return NO_ERROR;
     }
@@ -365,14 +373,20 @@ int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string>
 
 int main(int argc, char **argv)
 {
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "plugboards/IV.pb";
-    // argv[2] = "reflectors/I.rf";
-    // argv[3] = "rotors/I.rot";
-    // argv[4] = "rotors/II.rot";
-    // argv[5] = "rotors/III.rot";
-    // argv[6] = "rotors/II.pos";
-    // argc = 7;
+    argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    argv[1] = "plugboards/IV.pb";
+    argv[2] = "reflectors/I.rf";
+    argv[3] = "rotors/I.rot";
+    argv[4] = "rotors/II.rot";
+    argv[5] = "rotors/III.rot";
+    argv[6] = "rotors/II.pos";
+    argc = 7;
+
+    if (argc < 3)
+    {
+        cerr << "usage: enigma plugboard-file reflector-file (<rotor-file>)* rotor-positions" << endl;
+        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
+    }
 
     // Initialise vectors to store inputs
     vector<string> plugboardInput;
@@ -380,10 +394,13 @@ int main(int argc, char **argv)
     vector<string> rotorsInput[100];
     vector<string> rotorPosInput;
 
+    int numRotors;
+
     // Check if Plugboard was supplied, if not default to the standard mapping
     string plugboardTest = argv[1];
     if (!plugboardSupplied(plugboardTest))
     {
+        numRotors = argc - 3;
         for (int i = 0; i < 26; i++)
         {
             plugboardInput.push_back(to_string(i));
@@ -399,6 +416,7 @@ int main(int argc, char **argv)
     }
     else
     {
+        numRotors = argc - 4;
         parseInputStrings(argv[1], plugboardInput);
         parseInputStrings(argv[2], reflectorInput);
 
@@ -413,7 +431,7 @@ int main(int argc, char **argv)
     if (!rotorSupplied(rotorPosTest))
     {
         cerr << "Invalid rotor configuration" << endl;
-        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
+        throw(INSUFFICIENT_NUMBER_OF_PARAMETERS);
     }
 
     // Initialise variable for storing encrypted letter
@@ -427,43 +445,64 @@ int main(int argc, char **argv)
     Reflector reflector;
     OutputBoard outputBoard;
 
-    // Run initialisation methods on objects
-    plugboard.initialisePlugboard(plugboardInput);
-    for (int i = 0; i < rotorPosInput.size(); i++)
-    {
-        Rotor rotor;
-        rotor.initialiseRotor(rotorsInput[i], i, rotorPosInput[i]);
-        rotors.push_back(rotor);
-    }
-    reflector.initialiseReflector(reflectorInput);
-
     // do
     // {
     //     n = runEnigma(inputSwitches, plugboard, rotorPosInput, rotors, val, ch, reflector, outputBoard);
     // } while (n == 0);
 
-    while (!cin.eof())
-    {
-        inputSwitches.readInput(val);
-        plugboard.swapLetter(val, val);
-        for (int i = rotorPosInput.size() - 1; i >= 0; i--)
+    try
+    { // Run initialisation methods on objects
+        plugboard.initialisePlugboard(plugboardInput);
+        for (int i = 0; i < numRotors; i++)
         {
-            int tempVal = val;
-            if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-                rotors[i].rotateRotor();
+            if (i >= rotorPosInput.size())
+            {
+                return NO_ROTOR_STARTING_POSITION;
+            };
+            Rotor rotor;
+            rotor.initialiseRotor(rotorsInput[i], i, rotorPosInput[i]);
+            rotors.push_back(rotor);
+        }
+        reflector.initialiseReflector(reflectorInput);
 
-            if (rotors[i].checkNotch() && i != 0)
-                rotors[i - 1].rotateRotor();
-            rotors[i].mapNumber(val, false);
-        }
-        reflector.reflectNumber(val, val);
-        for (int i = 0; i < rotorPosInput.size(); i++)
+        while (!cin.eof())
         {
-            int tempVal = val;
-            rotors[i].mapNumber(val, true);
+            inputSwitches.readInput(val);
+            if (cin.fail())
+            {
+                break;
+            }
+            plugboard.swapLetter(val, val);
+            if (numRotors != 0)
+            {
+                for (int i = numRotors - 1; i >= 0; i--)
+                {
+                    int tempVal = val;
+                    if (rotors[i].rotorNum == rotorPosInput.size() - 1)
+                        rotors[i].rotateRotor();
+
+                    if (rotors[i].checkNotch() && i != 0)
+                        rotors[i - 1].rotateRotor();
+                    rotors[i].mapNumber(val, false);
+                }
+            }
+            reflector.reflectNumber(val, val);
+            if (numRotors != 0)
+            {
+
+                for (int i = 0; i < numRotors; i++)
+                {
+                    int tempVal = val;
+                    rotors[i].mapNumber(val, true);
+                }
+            }
+            plugboard.swapLetter(val, val);
+            outputBoard.mapNum2Letter(val, ch);
         }
-        plugboard.swapLetter(val, val);
-        outputBoard.mapNum2Letter(val, ch);
+    }
+    catch (int error)
+    {
+        return error;
     }
     return NO_ERROR;
 }
@@ -490,6 +529,7 @@ int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string>
     }
     plugboard.swapLetter(val, val);
     outputBoard.mapNum2Letter(val, ch);
+    return NO_ERROR;
 }
 
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
@@ -505,7 +545,7 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
     if (input.fail())
     {
         cerr << "Cannot open file" << endl;
-        return ERROR_OPENING_CONFIGURATION_FILE;
+        throw(ERROR_OPENING_CONFIGURATION_FILE);
     }
 
     int i = 0;
@@ -520,7 +560,7 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
             stringOfNums += ch;
         }
         // Conver the temp string to an int and store it in the array
-        else if (ch != '\n')
+        else if (ch != '\n' && stringOfNums != "")
         {
             arrayOut.push_back(stringOfNums);
             stringOfNums = "";
@@ -570,7 +610,12 @@ bool isNumeric(string ch)
 {
     try
     {
-        int num = stoi(ch);
+        for (size_t i = 0; i < ch.size(); i++)
+        {
+            string tempString;
+            tempString = ch[i];
+            int num = stoi(tempString);
+        }
         return true;
     }
     catch (...)
