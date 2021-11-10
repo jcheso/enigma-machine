@@ -118,13 +118,9 @@ public:
                 if (!isInArray(num, array2) && !isInArray(num, array1))
                 {
                     if (i % 2 == 0)
-                    {
                         array1.push_back(num);
-                    }
                     else
-                    {
                         array2.push_back(num);
-                    }
                 }
                 else
                 {
@@ -307,8 +303,9 @@ public:
             cerr << "Insufficient number of mappings in reflector file: reflector.rf" << endl;
             throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
         }
+        else if ((config.size() % 2 != 0) && config.size() != 26)
         {
-            cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
+            cerr << "Incorrect (odd) number of parameters in reflector file: reflector.rf" << endl;
             throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
         }
 
@@ -373,14 +370,14 @@ int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string>
 
 int main(int argc, char **argv)
 {
-    argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    argv[1] = "plugboards/IV.pb";
-    argv[2] = "reflectors/I.rf";
-    argv[3] = "rotors/I.rot";
-    argv[4] = "rotors/II.rot";
-    argv[5] = "rotors/III.rot";
-    argv[6] = "rotors/II.pos";
-    argc = 7;
+    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
+    // argv[1] = "plugboards/IV.pb";
+    // argv[2] = "reflectors/I.rf";
+    // argv[3] = "rotors/I.rot";
+    // argv[4] = "rotors/II.rot";
+    // argv[5] = "rotors/III.rot";
+    // argv[6] = "rotors/II.pos";
+    // argc = 7;
 
     if (argc < 3)
     {
@@ -457,6 +454,7 @@ int main(int argc, char **argv)
         {
             if (i >= rotorPosInput.size())
             {
+                cerr << "No starting position for rotor " << i << " in rotor position file: rotor.pos" << endl;
                 return NO_ROTOR_STARTING_POSITION;
             };
             Rotor rotor;
@@ -539,32 +537,25 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
     input.open(arrayIn);
 
     // Create variables to store the character, and each set of characters that complete the number
-    char ch;
-    string stringOfNums;
 
+    string stringOfNums;
     if (input.fail())
     {
         cerr << "Cannot open file" << endl;
         throw(ERROR_OPENING_CONFIGURATION_FILE);
     }
-
-    int i = 0;
     while (!input.fail())
     {
+        char ch = ' ';
         input.get(ch);
-        // Run checkNumeric first, if false return the error code.
-
-        // If it is not a space or end of file, copy the numbers to a temp string
         if (ch != ' ' && ch != '\n')
         {
             stringOfNums += ch;
         }
-        // Conver the temp string to an int and store it in the array
-        else if (ch != '\n' && stringOfNums != "")
+        else if (ch != '\n' && stringOfNums[0] != '\000')
         {
             arrayOut.push_back(stringOfNums);
             stringOfNums = "";
-            i++;
         }
         else if (ch == '\n')
         {
@@ -574,36 +565,23 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
     }
 
     input.close();
-
-    // printArray(arrayOut);
-
     return NO_ERROR;
 }
 
 bool plugboardSupplied(string plugboardTest)
 {
     if (plugboardTest.back() == 'b')
-    {
-        // cout << "Plugboard supplied" << endl;
         return true;
-    }
     else
-    {
         return false;
-    }
 }
 
 bool rotorSupplied(string rotorPosTest)
 {
     if (rotorPosTest.back() == 's')
-    {
-        // cout << "Rotor Starting Positions Supplied" << endl;
         return true;
-    }
     else
-    {
         return false;
-    }
 }
 
 bool isNumeric(string ch)
