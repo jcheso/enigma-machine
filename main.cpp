@@ -58,6 +58,7 @@ class Plugboard
     // Define any private variables and methods here
     vector<int> array1;
     vector<int> array2;
+
     /* This method fills the remainder of the plugboard with the missing characters */
     void fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
     {
@@ -80,11 +81,12 @@ class Plugboard
     };
     // Define any public variables and methods here
 public:
+    bool usingDefaultPlugboard = false;
     /* This method takes in a config file and initialises the plugboard array, if no array is
     provided it will initialise a default 1 to 1 plugboard */
     int initialisePlugboard(vector<string> config)
     {
-        if (plugboardSupplied)
+        if (!usingDefaultPlugboard && config.size() > 0)
         {
             int num;
 
@@ -129,7 +131,6 @@ public:
                 }
             }
         }
-
         // Check if length of input array is less than 26, if so run fillArray on both arrays
         if (config.size() < 26)
             fillArray(array1, array2, array2.size());
@@ -176,7 +177,7 @@ class Rotor
         // Check isNumeric()
         if (!isNumeric(tempStartPosition))
         {
-            cerr << "Non-numeric character in rotor positions file rotor.pos";
+            cerr << "Non-numeric character in rotor positions file rotor.pos" << endl;
             throw(NON_NUMERIC_CHARACTER);
         }
         startPosition = stoi(tempStartPosition);
@@ -234,7 +235,7 @@ public:
             int index;
             if (isInArray(num, rotorMap, index) && i < 26)
             {
-                cerr << "Invalid mapping of input " << i << " to output " << num << " (output " << num << " is already mapped to from input " << index << ")" << endl;
+                cerr << "Invalid mapping of input " << i << " to output " << num << " (output " << num << " is already mapped to from input " << index << ") in rotor file: rotor.rot" << endl;
                 throw(INVALID_ROTOR_MAPPING);
             }
             // Add to rotorMap if its in the first 25 digits
@@ -305,7 +306,7 @@ public:
         }
         else if ((config.size() % 2 != 0) && config.size() != 26)
         {
-            cerr << "Incorrect (odd) number of parameters in reflector file: reflector.rf" << endl;
+            cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
             throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
         }
 
@@ -316,8 +317,7 @@ public:
                 num = stoi(config[i]);
             else
             {
-                cerr << "Non-numeric character in reflector file: reflector.rf" << endl;
-                ;
+                cerr << "Non-numeric character in reflector file reflector.rf" << endl;
                 throw(NON_NUMERIC_CHARACTER);
             }
             // Check isValidNum() and return error code if false
@@ -365,8 +365,6 @@ public:
         cout << ch;
     }
 };
-/* This function runs the Enigma Machine */
-int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string> rotorPosInput, vector<Rotor> rotors, int &val, char &ch, Reflector &reflector, OutputBoard &outputBoard);
 
 int main(int argc, char **argv)
 {
@@ -391,12 +389,23 @@ int main(int argc, char **argv)
     vector<string> rotorsInput[100];
     vector<string> rotorPosInput;
 
+    // Initialise variable for storing encrypted letter
+    int val;
+    char ch;
     int numRotors;
+
+    // Construct objects
+    vector<Rotor> rotors;
+    Plugboard plugboard;
+    InputSwitches inputSwitches;
+    Reflector reflector;
+    OutputBoard outputBoard;
 
     // Check if Plugboard was supplied, if not default to the standard mapping
     string plugboardTest = argv[1];
     if (!plugboardSupplied(plugboardTest))
     {
+        plugboard.usingDefaultPlugboard = true;
         numRotors = argc - 3;
         for (int i = 0; i < 26; i++)
         {
@@ -406,7 +415,7 @@ int main(int argc, char **argv)
 
         parseInputStrings(argv[1], reflectorInput);
 
-        for (int i = 0; i < argc - 4; i++)
+        for (int i = 0; i < numRotors; i++)
             parseInputStrings(argv[2 + i], rotorsInput[i]);
 
         parseInputStrings(argv[argc - 1], rotorPosInput);
@@ -417,7 +426,7 @@ int main(int argc, char **argv)
         parseInputStrings(argv[1], plugboardInput);
         parseInputStrings(argv[2], reflectorInput);
 
-        for (int i = 0; i < argc - 4; i++)
+        for (int i = 0; i < numRotors; i++)
             parseInputStrings(argv[3 + i], rotorsInput[i]);
 
         parseInputStrings(argv[argc - 1], rotorPosInput);
@@ -430,17 +439,6 @@ int main(int argc, char **argv)
         cerr << "Invalid rotor configuration" << endl;
         throw(INSUFFICIENT_NUMBER_OF_PARAMETERS);
     }
-
-    // Initialise variable for storing encrypted letter
-    int val;
-    char ch;
-
-    // Construct objects
-    vector<Rotor> rotors;
-    Plugboard plugboard;
-    InputSwitches inputSwitches;
-    Reflector reflector;
-    OutputBoard outputBoard;
 
     // do
     // {
@@ -505,31 +503,6 @@ int main(int argc, char **argv)
     return NO_ERROR;
 }
 
-int runEnigma(InputSwitches &inputSwitches, Plugboard &plugboard, vector<string> rotorPosInput, vector<Rotor> rotors, int &val, char &ch, Reflector &reflector, OutputBoard &outputBoard)
-{
-    inputSwitches.readInput(val);
-    plugboard.swapLetter(val, val);
-    for (int i = rotorPosInput.size() - 1; i >= 0; i--)
-    {
-        int tempVal = val;
-        if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-            rotors[i].rotateRotor();
-
-        if (rotors[i].checkNotch() && i != 0)
-            rotors[i - 1].rotateRotor();
-        rotors[i].mapNumber(val, false);
-    }
-    reflector.reflectNumber(val, val);
-    for (int i = 0; i < rotorPosInput.size(); i++)
-    {
-        int tempVal = val;
-        rotors[i].mapNumber(val, true);
-    }
-    plugboard.swapLetter(val, val);
-    outputBoard.mapNum2Letter(val, ch);
-    return NO_ERROR;
-}
-
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
 {
     // Open an input file stream
@@ -557,9 +530,13 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
             arrayOut.push_back(stringOfNums);
             stringOfNums = "";
         }
-        else if (ch == '\n')
+        else if (ch == '\n' && stringOfNums[0] != '\000')
         {
             arrayOut.push_back(stringOfNums);
+            break;
+        }
+        else
+        {
             break;
         }
     }
