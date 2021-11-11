@@ -187,13 +187,24 @@ class Rotor
             cerr << "Invalid index provided" << endl;
             throw(INVALID_INDEX);
         }
-
+        // startPosition = rotorMap[0] - rotorMap[startPosition];
+        startPosition = 26 - startPosition;
         return NO_ERROR;
     }
 
     /* This method sets the start position of the rotor */
     void setStartPosition()
     {
+        // if (startPosition > 0)
+        // {
+        //     for (int i = 0; i < startPosition; i++)
+        //         shiftUp();
+        // }
+        // else
+        // {
+        //     for (int i = 0; i < -startPosition; i++)
+        //         shiftDown();
+        // }
         for (int i = 0; i < startPosition; i++)
             rotateRotor();
         rotations += startPosition;
@@ -201,6 +212,7 @@ class Rotor
     // Define any public variables and methods here
 public:
     int rotorNum;
+    bool activatedNotch = false;
     /* This method initialises a rotor from a provided config file */
     int initialiseRotor(vector<string> config, int rotorNum, string rotorPosInput)
     {
@@ -263,7 +275,37 @@ public:
             rotorMap[i] = rotorMap[i - 1];
 
         rotorMap[0] = last;
+        rotations++;
     }
+
+    void shiftUp()
+    {
+
+        for (int i = 0; i < rotorMap.size(); i++)
+        {
+            int shiftedVal = rotorMap[i] + 1;
+            if (shiftedVal > 26)
+            {
+                shiftedVal = (shiftedVal + 26) % 26;
+            }
+            rotorMap[i] = shiftedVal;
+        }
+    }
+
+    void shiftDown()
+    {
+
+        for (int i = 0; i < rotorMap.size(); i++)
+        {
+            int shiftedVal = rotorMap[i] - 1;
+            if (shiftedVal < 0)
+            {
+                shiftedVal = (shiftedVal + 26);
+            }
+            rotorMap[i] = shiftedVal;
+        }
+    }
+
     /* This method maps the input number to the output number */
     void mapNumber(int &num, bool reflected)
     {
@@ -278,7 +320,9 @@ public:
         // Iterate through notches
         for (int i = 0; i < notches.size(); i++)
         { // Check if the current rotation is at the notch
-            if (rotorMap[0] == originalRotorMap[notches[i]])
+            // if (rotorMap[0] == originalRotorMap[notches[i]])
+            //     return true;
+            if (rotorMap[0] == notches[i])
                 return true;
         }
         return false;
@@ -369,13 +413,13 @@ public:
 int main(int argc, char **argv)
 {
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // argv[1] = "plugboards/IV.pb";
-    // argv[2] = "reflectors/I.rf";
-    // argv[3] = "rotors/I.rot";
-    // argv[4] = "rotors/II.rot";
-    // argv[5] = "rotors/III.rot";
-    // argv[6] = "rotors/II.pos";
-    // argc = 7;
+    // // argv[1] = "plugboards/IV.pb";
+    // argv[1] = "reflectors/I.rf";
+    // // argv[3] = "rotors/I.rot";
+    // argv[2] = "rotors/II.rot";
+    // argv[3] = "rotors/III.rot";
+    // argv[4] = "rotors/I.pos";
+    // argc = 5;
 
     if (argc < 3)
     {
@@ -468,31 +512,49 @@ int main(int argc, char **argv)
             {
                 break;
             }
+            // cout << "Number in: " << val;
             plugboard.swapLetter(val, val);
             if (numRotors != 0)
             {
                 for (int i = numRotors - 1; i >= 0; i--)
                 {
                     int tempVal = val;
-                    if (rotors[i].rotorNum == rotorPosInput.size() - 1)
-                        rotors[i].rotateRotor();
 
-                    if (rotors[i].checkNotch() && i != 0)
-                        rotors[i - 1].rotateRotor();
+                    // Always rotate the right most rotor
+                    if (rotors[i].rotorNum == numRotors - 1)
+                    {
+                        rotors[i].rotateRotor();
+                        rotors[i].activatedNotch = false;
+                    }
+
+                    // Check if the rotor is at a notch (except the leftmost rotorNum=0)
+                    // Check if the notch has previously rotated/been activated and not moved since
+                    if (i != 0)
+                    {
+                        if (rotors[i].checkNotch() && !rotors[i].activatedNotch)
+                        {
+                            rotors[i].activatedNotch = true;
+                            rotors[i - 1].rotateRotor();
+                            rotors[i - 1].activatedNotch = false;
+                        }
+                    }
                     rotors[i].mapNumber(val, false);
+                    // cout << " Rotor " << i << ": " << val;
                 }
             }
             reflector.reflectNumber(val, val);
+            // cout << " Reflector: " << val;
             if (numRotors != 0)
             {
-
                 for (int i = 0; i < numRotors; i++)
                 {
                     int tempVal = val;
                     rotors[i].mapNumber(val, true);
+                    // cout << " Rotor: " << i << ": " << val;
                 }
             }
             plugboard.swapLetter(val, val);
+            // cout << " Number out: " << val << endl;
             outputBoard.mapNum2Letter(val, ch);
         }
     }
@@ -579,7 +641,6 @@ bool isNumeric(string ch)
     }
 }
 
-/* This function checks if the input is in the range of 0-25 */
 bool isValidNum(int num)
 {
     if (num > -1 && num < 26)
