@@ -157,7 +157,6 @@ class Rotor
     vector<int> originalRotorMap;
     vector<int> notches;
     bool hasNotch = false;
-    int rotations = 0;
     int startPosition;
     int mappedNumber;
 
@@ -188,7 +187,7 @@ class Rotor
             throw(INVALID_INDEX);
         }
         // startPosition = rotorMap[0] - rotorMap[startPosition];
-        startPosition = 26 - startPosition;
+        startPosition = startPosition;
         return NO_ERROR;
     }
 
@@ -205,13 +204,16 @@ class Rotor
         //     for (int i = 0; i < -startPosition; i++)
         //         shiftDown();
         // }
+
         for (int i = 0; i < startPosition; i++)
             rotateRotor();
-        rotations += startPosition;
     }
+
     // Define any public variables and methods here
 public:
     int rotorNum;
+    int rotations = 0;
+
     bool activatedNotch = false;
     /* This method initialises a rotor from a provided config file */
     int initialiseRotor(vector<string> config, int rotorNum, string rotorPosInput)
@@ -270,11 +272,20 @@ public:
     void rotateRotor()
     {
         // Shift rotorMap array to the right by one
-        int last = rotorMap[rotorMap.size() - 1];
-        for (int i = rotorMap.size() - 1; i > 0; i--)
-            rotorMap[i] = rotorMap[i - 1];
-
-        rotorMap[0] = last;
+        int first = rotorMap[0] - 1;
+        if (first < 0)
+        {
+            first = 25;
+        }
+        for (int i = 0; i < rotorMap.size(); i++)
+        {
+            rotorMap[i] = (rotorMap[i + 1] - 1);
+            if (rotorMap[i] < 0)
+            {
+                rotorMap[i] = 25;
+            }
+        }
+        rotorMap[rotorMap.size() - 1] = first;
         rotations++;
     }
 
@@ -322,7 +333,7 @@ public:
         { // Check if the current rotation is at the notch
             // if (rotorMap[0] == originalRotorMap[notches[i]])
             //     return true;
-            if (rotorMap[0] == notches[i])
+            if (rotations == notches[i])
                 return true;
         }
         return false;
@@ -414,11 +425,11 @@ int main(int argc, char **argv)
 {
     // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
     // // argv[1] = "plugboards/IV.pb";
-    // argv[1] = "reflectors/I.rf";
+    // argv[1] = "reflectors/test.rf";
     // // argv[3] = "rotors/I.rot";
-    // argv[2] = "rotors/II.rot";
-    // argv[3] = "rotors/III.rot";
-    // argv[4] = "rotors/I.pos";
+    // argv[2] = "rotors/test1.rot";
+    // argv[3] = "rotors/test2.rot";
+    // argv[4] = "rotors/test.pos";
     // argc = 5;
 
     if (argc < 3)
@@ -514,6 +525,7 @@ int main(int argc, char **argv)
             }
             // cout << "Number in: " << val;
             plugboard.swapLetter(val, val);
+            // cout << "Plugboard swapped to: " << val << endl;
             if (numRotors != 0)
             {
                 for (int i = numRotors - 1; i >= 0; i--)
@@ -531,6 +543,7 @@ int main(int argc, char **argv)
                     // Check if the notch has previously rotated/been activated and not moved since
                     if (i != 0)
                     {
+
                         if (rotors[i].checkNotch() && !rotors[i].activatedNotch)
                         {
                             rotors[i].activatedNotch = true;
@@ -538,8 +551,10 @@ int main(int argc, char **argv)
                             rotors[i - 1].activatedNotch = false;
                         }
                     }
+                    // val = val + rotors[i].rotations;
                     rotors[i].mapNumber(val, false);
                     // cout << " Rotor " << i << ": " << val;
+                    // cout << "With rotations" << val << endl;
                 }
             }
             reflector.reflectNumber(val, val);
@@ -551,6 +566,8 @@ int main(int argc, char **argv)
                     int tempVal = val;
                     rotors[i].mapNumber(val, true);
                     // cout << " Rotor: " << i << ": " << val;
+                    // val += ((rotors[i].rotations) + 26) % 26;
+                    // cout << "With rotations" << val << endl;
                 }
             }
             plugboard.swapLetter(val, val);
