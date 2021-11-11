@@ -7,35 +7,12 @@
 #include <typeinfo>
 #include "helper.h"
 #include "errors.h"
+#include "inputSwitches.h"
 using namespace std;
-
-/* This class models the Input Switches */
-class InputSwitches
-{ // This vector keeps track of all the input characters
-    string input;
-    char ch;
-    int num;
-    // Define any public variables and methods here
-public:
-    /* This method reads in a character and returns an integer corresponding to it's position in the Alphabet */
-    int readInput(int &num)
-    {
-        cin >> ws;
-        cin >> ch;
-        num = ch - 65;
-        if (!isValidNum(num))
-        {
-            cerr << ch << " is not a valid input character (input characters must be upper case letters A-Z)!" << endl;
-            throw(INVALID_INPUT_CHARACTER);
-        }
-        return NO_ERROR;
-    }
-};
 
 /* This class models the Plugboard */
 class Plugboard
 {
-    // Define any private variables and methods here
     vector<int> array1;
     vector<int> array2;
 
@@ -59,7 +36,7 @@ class Plugboard
             array2.push_back(sum2add);
         }
     };
-    // Define any public variables and methods here
+
 public:
     bool usingDefaultPlugboard = false;
     /* This method takes in a config file and initialises the plugboard array, if no array is
@@ -69,15 +46,12 @@ public:
         if (!usingDefaultPlugboard && config.size() > 0)
         {
             int num;
-
-            // Check isValidLen()
+            // Check if plugboard is even and not over 26 chars
             if ((config.size() % 2 != 0) || (config.size() > 26))
             {
                 cerr << "Incorrect number of parameters in plugboard file plugboard.pb" << endl;
                 throw(INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS);
             }
-
-            // If no plugboard was provided, then convert strings to ints, else perform the checks
             for (int i = 0; i < config.size(); i++)
             {
                 // Check isNumeric() & convert to int if true. Return error code if false
@@ -88,15 +62,13 @@ public:
                     cerr << "Non-numeric character in plugboard file plugboard.pb" << endl;
                     throw(NON_NUMERIC_CHARACTER);
                 }
-
                 // Check isValidNum() and return error code if false
                 if (!isValidNum(num))
                 {
-                    cerr << "Invalid index provided" << endl;
+                    cerr << "Invalid index provided at" << num << endl;
                     throw(INVALID_INDEX);
                 }
-
-                // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
+                // Check if it isInArray(). If not, split the pairs into their arrays
                 if (!isInArray(num, array2) && !isInArray(num, array1))
                 {
                     if (i % 2 == 0)
@@ -111,10 +83,10 @@ public:
                 }
             }
         }
-        // Check if length of input array is less than 26, if so run fillArray on both arrays
+
+        // Check if length of input array is less than 26, if so run fillArray on both arrays to map remaining numbers
         if (config.size() < 26)
             fillArray(array1, array2, array2.size());
-
         return NO_ERROR;
     }
 
