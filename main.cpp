@@ -1,33 +1,13 @@
 #include <iostream>
 #include <fstream>
-#include "errors.h"
 #include <string>
 #include <vector>
 #include <array>
 #include <ctype.h>
 #include <typeinfo>
+#include "helper.h"
+#include "errors.h"
 using namespace std;
-
-/* This function takes an input string and assigns the contents to an array - Save as vector of strings instead of int?*/
-int parseInputStrings(char array[], vector<string> &arrayOut);
-/* This function checks if a plugboard was provided */
-bool plugboardSupplied(string plugboardTest);
-/* This function checks if a rotor starting position was provided */
-bool rotorSupplied(string rotorPosTest);
-/* This function takes a string array and prints it */
-void printArray(vector<string> &array);
-/* This function takes an integer array and prints it */
-void printArray(vector<int> &array);
-/* This function checks if the input is numeric */
-bool isNumeric(string ch);
-/* This function checks if the input is in the range of 0-25 */
-bool isValidNum(int num);
-/* This function checks if the array is the expected length */
-bool isValidLen(int n, vector<int> array);
-/* This function checks if the value is already in the array */
-bool isInArray(int n, vector<int> array);
-/* This function checks if the value is already in the array and returns the position */
-bool isInArray(int n, vector<int> array, int &arrayPosition);
 
 /* This class models the Input Switches */
 class InputSwitches
@@ -582,124 +562,124 @@ int main(int argc, char **argv)
     return NO_ERROR;
 }
 
-int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
-{
-    // Open an input file stream
-    ifstream input;
-    input.open(arrayIn);
+// int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
+// {
+//     // Open an input file stream
+//     ifstream input;
+//     input.open(arrayIn);
 
-    // Create variables to store the character, and each set of characters that complete the number
+//     // Create variables to store the character, and each set of characters that complete the number
 
-    string stringOfNums;
-    if (input.fail())
-    {
-        cerr << "Cannot open file" << endl;
-        throw(ERROR_OPENING_CONFIGURATION_FILE);
-    }
-    while (!input.fail())
-    {
-        char ch = ' ';
-        input.get(ch);
-        if (ch != ' ' && ch != '\n')
-        {
-            stringOfNums += ch;
-        }
-        else if (ch != '\n' && stringOfNums[0] != '\000')
-        {
-            arrayOut.push_back(stringOfNums);
-            stringOfNums = "";
-        }
-        else if (ch == '\n' && stringOfNums[0] != '\000')
-        {
-            arrayOut.push_back(stringOfNums);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
+//     string stringOfNums;
+//     if (input.fail())
+//     {
+//         cerr << "Cannot open file" << endl;
+//         throw(ERROR_OPENING_CONFIGURATION_FILE);
+//     }
+//     while (!input.fail())
+//     {
+//         char ch = ' ';
+//         input.get(ch);
+//         if (ch != ' ' && ch != '\n')
+//         {
+//             stringOfNums += ch;
+//         }
+//         else if (ch != '\n' && stringOfNums[0] != '\000')
+//         {
+//             arrayOut.push_back(stringOfNums);
+//             stringOfNums = "";
+//         }
+//         else if (ch == '\n' && stringOfNums[0] != '\000')
+//         {
+//             arrayOut.push_back(stringOfNums);
+//             break;
+//         }
+//         else
+//         {
+//             break;
+//         }
+//     }
 
-    input.close();
-    return NO_ERROR;
-}
+//     input.close();
+//     return NO_ERROR;
+// }
 
-bool plugboardSupplied(string plugboardTest)
-{
-    if (plugboardTest.back() == 'b')
-        return true;
-    else
-        return false;
-}
+// bool plugboardSupplied(string plugboardTest)
+// {
+//     if (plugboardTest.back() == 'b')
+//         return true;
+//     else
+//         return false;
+// }
 
-bool rotorSupplied(string rotorPosTest)
-{
-    if (rotorPosTest.back() == 's')
-        return true;
-    else
-        return false;
-}
+// bool rotorSupplied(string rotorPosTest)
+// {
+//     if (rotorPosTest.back() == 's')
+//         return true;
+//     else
+//         return false;
+// }
 
-bool isNumeric(string ch)
-{
-    try
-    {
-        for (size_t i = 0; i < ch.size(); i++)
-        {
-            string tempString;
-            tempString = ch[i];
-            int num = stoi(tempString);
-        }
-        return true;
-    }
-    catch (...)
-    {
-        return false;
-    }
-}
+// bool isNumeric(string ch)
+// {
+//     try
+//     {
+//         for (size_t i = 0; i < ch.size(); i++)
+//         {
+//             string tempString;
+//             tempString = ch[i];
+//             int num = stoi(tempString);
+//         }
+//         return true;
+//     }
+//     catch (...)
+//     {
+//         return false;
+//     }
+// }
 
-bool isValidNum(int num)
-{
-    if (num > -1 && num < 26)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
+// bool isValidNum(int num)
+// {
+//     if (num > -1 && num < 26)
+//     {
+//         return true;
+//     }
+//     else
+//     {
+//         return false;
+//     }
+// }
 
-bool isInArray(int n, vector<int> array)
-{
-    for (int i = 0; i < array.size(); i++)
-    {
-        if (n == array[i])
-        {
-            return true;
-        }
-    }
-    return false;
-}
+// bool isInArray(int n, vector<int> array)
+// {
+//     for (int i = 0; i < array.size(); i++)
+//     {
+//         if (n == array[i])
+//         {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
-bool isInArray(int n, vector<int> array, int &arrayPosition)
-{
-    for (int i = 0; i < array.size(); i++)
-    {
-        if (n == array[i])
-        {
-            arrayPosition = i;
-            return true;
-        }
-    }
-    return false;
-}
+// bool isInArray(int n, vector<int> array, int &arrayPosition)
+// {
+//     for (int i = 0; i < array.size(); i++)
+//     {
+//         if (n == array[i])
+//         {
+//             arrayPosition = i;
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
-bool isValidLen(int n, vector<int> array)
-{
-    if (array.size() == n)
-        return true;
+// bool isValidLen(int n, vector<int> array)
+// {
+//     if (array.size() == n)
+//         return true;
 
-    else
-        return false;
-}
+//     else
+//         return false;
+// }
