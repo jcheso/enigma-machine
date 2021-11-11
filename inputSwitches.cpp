@@ -6,11 +6,11 @@ using namespace std;
 
 InputSwitches::InputSwitches()
 {
+    char ch;
 }
 
 int InputSwitches::readInput(int &num)
 {
-    char ch;
     cin >> ws;
     cin >> ch;
     num = ch - 65;
