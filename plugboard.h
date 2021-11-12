@@ -16,12 +16,13 @@ private:
     void fillArray(vector<int> &array1, vector<int> &array2, int arrSize);
 
 public:
-    bool usingDefaultPlugboard;
+    vector<string> plugboardInput;
     Plugboard();
     /* This method takes in a config file and initialises the plugboard array, if no array is
     provided it will initialise a default 1 to 1 plugboard */
     int initialisePlugboard(vector<string> config);
     /* This class method takes in an input and swaps it to the correct output */
     void swapLetter(int input, int &output);
+    void generateDefaultPlugboard();
 };
 #endif

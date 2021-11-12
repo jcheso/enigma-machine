@@ -25,6 +25,7 @@ int Reflector::initialiseReflector(vector<string> config)
     }
     else if ((config.size() % 2 != 0) && config.size() != 26)
     {
+        cerr << config.size();
         cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
         throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
     }

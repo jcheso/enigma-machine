@@ -16,11 +16,6 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    if (argc < 3)
-    {
-        cerr << "usage: enigma plugboard-file reflector-file (<rotor-file>)* rotor-positions" << endl;
-        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
-    }
 
     // Initialise vectors to store inputs
     vector<string> plugboardInput;
@@ -40,23 +35,26 @@ int main(int argc, char **argv)
     Reflector reflector;
     OutputBoard outputBoard;
 
-    // Check if Plugboard was supplied, if not default to the standard mapping
-    string plugboardTest = argv[1];
-    if (!plugboardSupplied(plugboardTest))
+    if (!checkCorrectParameters(argc, argv))
     {
-        plugboard.usingDefaultPlugboard = true;
+        cerr << "usage: enigma plugboard-file reflector-file (<rotor-file>)* rotor-positions" << endl;
+        return INSUFFICIENT_NUMBER_OF_PARAMETERS;
+    }
+
+    // Check if Plugboard was supplied, if not default to the standard mapping
+    if (!isFileSupplied(argv[1], 'b'))
+    {
+        plugboard.generateDefaultPlugboard();
+        // plugboard.usingDefaultPlugboard = true;
         numRotors = argc - 3;
-        for (int i = 0; i < 26; i++)
-        {
-            plugboardInput.push_back(to_string(i));
-            plugboardInput.push_back(to_string(i));
-        }
-
+        // for (size_t i = 0; i < 26; i++)
+        // {
+        //     plugboardInput.push_back(to_string(i));
+        //     plugboardInput.push_back(to_string(i));
+        // }
         parseInputStrings(argv[1], reflectorInput);
-
-        for (int i = 0; i < numRotors; i++)
+        for (size_t i = 0; i < numRotors; i++)
             parseInputStrings(argv[2 + i], rotorsInput[i]);
-
         parseInputStrings(argv[argc - 1], rotorPosInput);
     }
     else
@@ -64,25 +62,18 @@ int main(int argc, char **argv)
         numRotors = argc - 4;
         parseInputStrings(argv[1], plugboardInput);
         parseInputStrings(argv[2], reflectorInput);
-
-        for (int i = 0; i < numRotors; i++)
+        for (size_t i = 0; i < numRotors; i++)
             parseInputStrings(argv[3 + i], rotorsInput[i]);
-
         parseInputStrings(argv[argc - 1], rotorPosInput);
-    }
-
-    // Check if rotor start positions are supplied, throw an error if not
-    string rotorPosTest = argv[argc - 1];
-    if (!rotorSupplied(rotorPosTest))
-    {
-        cerr << "Invalid rotor configuration" << endl;
-        throw(INSUFFICIENT_NUMBER_OF_PARAMETERS);
     }
 
     try
     { // Run initialisation methods on objects
-        plugboard.initialisePlugboard(plugboardInput);
-        for (int i = 0; i < numRotors; i++)
+        if (isFileSupplied(argv[1], 'b'))
+        {
+            plugboard.initialisePlugboard(plugboardInput);
+        }
+        for (size_t i = 0; i < numRotors; i++)
         {
             if (i >= rotorPosInput.size())
             {

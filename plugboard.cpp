@@ -8,9 +8,9 @@ using namespace std;
 
 Plugboard::Plugboard()
 {
-    bool usingDefaultPlugboard = false;
     vector<int> array1;
     vector<int> array2;
+    vector<string> plugboardInput;
 }
 
 /* This method fills the remainder of the plugboard with the missing characters */
@@ -38,7 +38,7 @@ void Plugboard::fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
 provided it will initialise a default 1 to 1 plugboard */
 int Plugboard::initialisePlugboard(vector<string> config)
 {
-    if (!usingDefaultPlugboard && config.size() > 0)
+    if (config.size() > 0)
     {
         int num;
         // Check if plugboard is even and not over 26 chars
@@ -93,4 +93,13 @@ void Plugboard::swapLetter(int input, int &output)
         output = array2[arrayPosition];
     else if (isInArray(input, array2, arrayPosition))
         output = array1[arrayPosition];
+}
+
+void Plugboard::generateDefaultPlugboard()
+{
+    for (size_t i = 0; i < 26; i++)
+    {
+        array1.push_back(i);
+        array2.push_back(i);
+    }
 }

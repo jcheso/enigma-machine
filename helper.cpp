@@ -43,17 +43,9 @@ int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
     return NO_ERROR;
 }
 
-bool plugboardSupplied(string plugboardTest)
+bool isFileSupplied(string filename, char lastChar)
 {
-    if (plugboardTest.back() == 'b')
-        return true;
-    else
-        return false;
-}
-
-bool rotorSupplied(string rotorPosTest)
-{
-    if (rotorPosTest.back() == 's')
+    if (filename.back() == lastChar)
         return true;
     else
         return false;
@@ -114,4 +106,17 @@ bool isValidLen(int n, vector<int> array)
         return true;
     else
         return false;
+}
+
+bool checkCorrectParameters(int argc, char **argv)
+{
+    // If a plugboard is supplied, check if there is at least one reflector, rotor and rotor position
+    if (isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[2], 'f') || !isFileSupplied(argv[3], 't') || !isFileSupplied(argv[argc - 1], 's')))
+        return false;
+
+    // If a plugboard is not supplied, check if there is at least one reflector, rotor and rotor position
+    else if (!isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[1], 'f') || !isFileSupplied(argv[2], 't') || !isFileSupplied(argv[argc - 1], 's')))
+        return false;
+
+    return true;
 }

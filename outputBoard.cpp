@@ -4,7 +4,6 @@ using namespace std;
 
 OutputBoard::OutputBoard()
 {
-    char outputLetter;
 }
 
 /* This method takes a number and returns the corresponding character */

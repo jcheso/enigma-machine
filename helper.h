@@ -28,4 +28,8 @@ bool isInArray(int n, vector<int> array);
 /* This function checks if the value is already in the array and returns the position */
 bool isInArray(int n, vector<int> array, int &arrayPosition);
 
+bool isFileSupplied(string filename, char lastChar);
+
+bool checkCorrectParameters(int argc, char **argv);
+
 #endif

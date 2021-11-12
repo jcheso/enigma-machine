@@ -6,9 +6,6 @@ using namespace std;
 class OutputBoard
 {
 private:
-    // Define any private variables and methods here
-    char outputLetter;
-    // Define any public variables and methods here
 public:
     OutputBoard();
     /* This method takes a number and outputs the corresponding character */
