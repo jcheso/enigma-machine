@@ -3,3 +3,5 @@ helper.h.gch
 outputExpected.txt
 inputSwitches.h.gch
 plugboard.h.gch
+main.cpp
+.vscode/settings.json

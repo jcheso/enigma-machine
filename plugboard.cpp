@@ -93,4 +93,4 @@ void Plugboard::swapLetter(int input, int &output)
         output = array2[arrayPosition];
     else if (isInArray(input, array2, arrayPosition))
         output = array1[arrayPosition];
-};
+}

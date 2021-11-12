@@ -9,142 +9,8 @@
 #include "errors.h"
 #include "inputSwitches.h"
 #include "plugboard.h"
+#include "rotor.h"
 using namespace std;
-
-/* This class models a Rotor */
-class Rotor
-{
-    vector<int> rotorMap;
-    vector<int> originalRotorMap;
-    vector<int> notches;
-    bool hasNotch = false;
-    int startPosition;
-    int mappedNumber;
-
-    /* This method gets the start position of the rotor from the config provided */
-    int getStartPosition(string config)
-    {
-        string tempStartPosition;
-        // If does not exist, exit with NO_ROTOR_STARTING_POSITION
-        try
-        {
-            tempStartPosition = config;
-        }
-        catch (...)
-        {
-            throw(NO_ROTOR_STARTING_POSITION);
-        }
-        // Check isNumeric()
-        if (!isNumeric(tempStartPosition))
-        {
-            cerr << "Non-numeric character in rotor positions file rotor.pos" << endl;
-            throw(NON_NUMERIC_CHARACTER);
-        }
-        startPosition = stoi(tempStartPosition);
-        // Check isValidNum() and return error code if false
-        if (!isValidNum(startPosition))
-        {
-            cerr << "Invalid index provided" << endl;
-            throw(INVALID_INDEX);
-        }
-        return NO_ERROR;
-    }
-
-    /* This method sets the start position of the rotor */
-    void setStartPosition()
-    {
-        for (int i = 0; i < startPosition; i++)
-            rotateRotor();
-    }
-
-public:
-    int rotorNum;
-    int rotations = 0;
-    bool activatedNotch = false;
-    /* This method initialises a rotor from a provided config file */
-    int initialiseRotor(vector<string> config, int rotorNum, string rotorPosInput)
-    {
-        this->rotorNum = rotorNum;
-        // Check isValidLen()
-        if (config.size() < 26)
-        {
-            cerr << "Not all inputs mapped in rotor file: rotor.rot" << endl;
-            throw(INVALID_ROTOR_MAPPING);
-        }
-        for (size_t i = 0; i < config.size(); i++)
-        {
-            int num;
-            int index;
-            // Check isNumeric() & convert to int if true. Return error code if false
-            if (isNumeric(config[i]))
-                num = stoi(config[i]);
-            else
-            {
-                cerr << "Non-numeric character for mapping in rotor file rotor.rot" << endl;
-                throw(NON_NUMERIC_CHARACTER);
-            }
-            // Check isValidNum() and return error code if false
-            if (!isValidNum(num))
-            {
-                cerr << "Invalid index provided" << endl;
-                throw(INVALID_INDEX);
-            }
-            if (isInArray(num, rotorMap, index) && i < 26)
-            {
-                cerr << "Invalid mapping of input " << i << " to output " << num << " (output " << num << " is already mapped to from input " << index << ") in rotor file: rotor.rot" << endl;
-                throw(INVALID_ROTOR_MAPPING);
-            }
-            // Add to rotorMap if its in the first 25 digits
-            if (i < 26)
-                rotorMap.push_back(num);
-            // Add to notches if its past the first 25 digits and set this rotor to have notches
-            if (i >= 26)
-            {
-                notches.push_back(num);
-                hasNotch = true;
-            }
-        }
-        originalRotorMap = rotorMap;
-        getStartPosition(rotorPosInput);
-        setStartPosition();
-        return NO_ERROR;
-    }
-    /* This method rotates the rotor specified*/
-    void rotateRotor()
-    {
-        // Shift rotorMap array to the right by one
-        int first = rotorMap[0] - 1;
-        if (first < 0)
-            first = 25;
-        for (int i = 0; i < rotorMap.size(); i++)
-        {
-            rotorMap[i] = (rotorMap[i + 1] - 1);
-            if (rotorMap[i] < 0)
-                rotorMap[i] = 25;
-        }
-        rotorMap[rotorMap.size() - 1] = first;
-        rotations++;
-    }
-    /* This method maps the input number to the output number */
-    void mapNumber(int &num, bool reflected)
-    {
-        if (!reflected)
-            num = rotorMap[num];
-        else
-            isInArray(num, rotorMap, num);
-    }
-    /* This method checks if the notch is at 12 o'clock */
-    bool checkNotch()
-    {
-        // Iterate through notches & check if the current rotation is at the notch
-        for (int i = 0; i < notches.size(); i++)
-        {
-            if (rotations == notches[i])
-                return true;
-        }
-        return false;
-    }
-};
 
 class Reflector
 {
@@ -301,11 +167,6 @@ int main(int argc, char **argv)
         throw(INSUFFICIENT_NUMBER_OF_PARAMETERS);
     }
 
-    // do
-    // {
-    //     n = runEnigma(inputSwitches, plugboard, rotorPosInput, rotors, val, ch, reflector, outputBoard);
-    // } while (n == 0);
-
     try
     { // Run initialisation methods on objects
         plugboard.initialisePlugboard(plugboardInput);
@@ -317,7 +178,7 @@ int main(int argc, char **argv)
                 return NO_ROTOR_STARTING_POSITION;
             };
             Rotor rotor;
-            rotor.initialiseRotor(rotorsInput[i], i, rotorPosInput[i]);
+            rotor.initialiseRotor(rotorsInput[i], rotorPosInput[i]);
             rotors.push_back(rotor);
         }
         reflector.initialiseReflector(reflectorInput);
@@ -329,17 +190,14 @@ int main(int argc, char **argv)
             {
                 break;
             }
-            // cout << "Number in: " << val;
             plugboard.swapLetter(val, val);
-            // cout << "Plugboard swapped to: " << val << endl;
             if (numRotors != 0)
             {
                 for (int i = numRotors - 1; i >= 0; i--)
                 {
                     int tempVal = val;
-
                     // Always rotate the right most rotor
-                    if (rotors[i].rotorNum == numRotors - 1)
+                    if (i == numRotors - 1)
                     {
                         rotors[i].rotateRotor();
                         rotors[i].activatedNotch = false;
@@ -349,7 +207,6 @@ int main(int argc, char **argv)
                     // Check if the notch has previously rotated/been activated and not moved since
                     if (i != 0)
                     {
-
                         if (rotors[i].checkNotch() && !rotors[i].activatedNotch)
                         {
                             rotors[i].activatedNotch = true;
@@ -357,27 +214,23 @@ int main(int argc, char **argv)
                             rotors[i - 1].activatedNotch = false;
                         }
                     }
-                    // val = val + rotors[i].rotations;
                     rotors[i].mapNumber(val, false);
-                    // cout << " Rotor " << i << ": " << val;
-                    // cout << "With rotations" << val << endl;
+                    // cout << " - R" << rotors[i].rotorNum << " : " << val;
                 }
             }
             reflector.reflectNumber(val, val);
-            // cout << " Reflector: " << val;
+
             if (numRotors != 0)
             {
                 for (int i = 0; i < numRotors; i++)
                 {
                     int tempVal = val;
                     rotors[i].mapNumber(val, true);
-                    // cout << " Rotor: " << i << ": " << val;
-                    // val += ((rotors[i].rotations) + 26) % 26;
-                    // cout << "With rotations" << val << endl;
                 }
             }
             plugboard.swapLetter(val, val);
-            // cout << " Number out: " << val << endl;
+            // cout << " - PB: " << val << endl;
+
             outputBoard.mapNum2Letter(val, ch);
         }
     }
