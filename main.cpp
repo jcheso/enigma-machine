@@ -10,100 +10,12 @@
 #include "inputSwitches.h"
 #include "plugboard.h"
 #include "rotor.h"
+#include "reflector.h"
+#include "outputBoard.h"
 using namespace std;
-
-class Reflector
-{
-    // Define any private variables and methods here
-    vector<int> array1;
-    vector<int> array2;
-    int reflectedNumber;
-    int index;
-    // Define any public variables and methods here
-public:
-    /* This method initialises a reflector from a provided config file */
-    int initialiseReflector(vector<string> config)
-    {
-        int num;
-        // Check isValidLen()
-        if ((config.size() % 2 == 0) && config.size() != 26)
-        {
-            cerr << "Insufficient number of mappings in reflector file: reflector.rf" << endl;
-            throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
-        }
-        else if ((config.size() % 2 != 0) && config.size() != 26)
-        {
-            cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
-            throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
-        }
-
-        for (int i = 0; i < config.size(); i++)
-        {
-            // Check isNumeric() & convert to int if true. Return error code if false
-            if (isNumeric(config[i]))
-                num = stoi(config[i]);
-            else
-            {
-                cerr << "Non-numeric character in reflector file reflector.rf" << endl;
-                throw(NON_NUMERIC_CHARACTER);
-            }
-            // Check isValidNum() and return error code if false
-            if (!isValidNum(num))
-            {
-                cerr << "Invalid index provided" << endl;
-                throw(INVALID_INDEX);
-            }
-            // Check if is an input or output value, then check if it isInArray(). If not, push to array, else return error
-            if (!isInArray(num, array2) && !isInArray(num, array1))
-            {
-                if (i % 2 == 0)
-                    array1.push_back(num);
-                else
-                    array2.push_back(num);
-            }
-            else
-            {
-                cerr << "Incorrect (odd) number of parameters in reflector file reflector.rf" << endl;
-                throw(IMPOSSIBLE_PLUGBOARD_CONFIGURATION);
-            }
-        }
-        return NO_ERROR;
-    }
-    void reflectNumber(int input, int &output)
-    {
-        int arrayPosition;
-        if (isInArray(input, array1, arrayPosition))
-            output = array2[arrayPosition];
-        else if (isInArray(input, array2, arrayPosition))
-            output = array1[arrayPosition];
-    }
-};
-
-class OutputBoard
-{
-    // Define any private variables and methods here
-    char outputLetter;
-    // Define any public variables and methods here
-public:
-    /* This method takes a number and returns the corresponding character */
-    void mapNum2Letter(int num, char ch)
-    {
-        ch = static_cast<char>(num + 65);
-        cout << ch;
-    }
-};
 
 int main(int argc, char **argv)
 {
-    // argv[0] = "c:/Users/jches/Documents/Programming/MSc Computing/Intro to C++/Coursework #2/main.exe";
-    // // argv[1] = "plugboards/IV.pb";
-    // argv[1] = "reflectors/test.rf";
-    // // argv[3] = "rotors/I.rot";
-    // argv[2] = "rotors/test1.rot";
-    // argv[3] = "rotors/test2.rot";
-    // argv[4] = "rotors/test.pos";
-    // argc = 5;
-
     if (argc < 3)
     {
         cerr << "usage: enigma plugboard-file reflector-file (<rotor-file>)* rotor-positions" << endl;
@@ -113,7 +25,7 @@ int main(int argc, char **argv)
     // Initialise vectors to store inputs
     vector<string> plugboardInput;
     vector<string> reflectorInput;
-    vector<string> rotorsInput[100];
+    vector<string> rotorsInput[10];
     vector<string> rotorPosInput;
 
     // Initialise variable for storing encrypted letter
@@ -205,17 +117,13 @@ int main(int argc, char **argv)
 
                     // Check if the rotor is at a notch (except the leftmost rotorNum=0)
                     // Check if the notch has previously rotated/been activated and not moved since
-                    if (i != 0)
+                    if (i != 0 && rotors[i].checkNotch() && !rotors[i].activatedNotch)
                     {
-                        if (rotors[i].checkNotch() && !rotors[i].activatedNotch)
-                        {
-                            rotors[i].activatedNotch = true;
-                            rotors[i - 1].rotateRotor();
-                            rotors[i - 1].activatedNotch = false;
-                        }
+                        rotors[i].activatedNotch = true;
+                        rotors[i - 1].rotateRotor();
+                        rotors[i - 1].activatedNotch = false;
                     }
                     rotors[i].mapNumber(val, false);
-                    // cout << " - R" << rotors[i].rotorNum << " : " << val;
                 }
             }
             reflector.reflectNumber(val, val);
@@ -229,8 +137,6 @@ int main(int argc, char **argv)
                 }
             }
             plugboard.swapLetter(val, val);
-            // cout << " - PB: " << val << endl;
-
             outputBoard.mapNum2Letter(val, ch);
         }
     }

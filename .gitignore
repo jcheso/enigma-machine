@@ -5,3 +5,6 @@ inputSwitches.h.gch
 plugboard.h.gch
 main.cpp
 .vscode/settings.json
+outputBoard.h.gch
+reflector.h.gch
+rotor.h.gch
