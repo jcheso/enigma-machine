@@ -8,7 +8,6 @@ using namespace std;
 
 int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
 {
-    // Open an input file stream to the specified array
     ifstream input;
     input.open(arrayIn);
     string stringOfNums;
@@ -98,14 +97,6 @@ bool isInArray(int n, vector<int> array, int &arrayPosition)
         }
     }
     return false;
-}
-
-bool isValidLen(int n, vector<int> array)
-{
-    if (array.size() == n)
-        return true;
-    else
-        return false;
 }
 
 bool checkCorrectParameters(int argc, char **argv)

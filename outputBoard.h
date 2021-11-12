@@ -3,12 +3,13 @@
 #include <iostream>
 using namespace std;
 
+/* Probably not necessary as an Object but keeps the Enigma components distinct */
 class OutputBoard
 {
 private:
 public:
     OutputBoard();
     /* This method takes a number and outputs the corresponding character */
-    void mapNum2Letter(int num, char ch);
+    void outputLetter(int num);
 };
 #endif

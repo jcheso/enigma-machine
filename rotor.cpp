@@ -44,7 +44,7 @@ void Rotor::setStartPosition()
 /* This method initialises a rotor from a provided config file */
 int Rotor::initialiseRotor(vector<string> config, string rotorPosInput)
 {
-    // Check isValidLen()
+    // Check if length is valid
     if (config.size() < 26)
     {
         cerr << "Not all inputs mapped in rotor file: rotor.rot" << endl;
@@ -90,8 +90,9 @@ int Rotor::initialiseRotor(vector<string> config, string rotorPosInput)
 /* This method rotates the rotor specified*/
 void Rotor::rotateRotor()
 {
-    // Shift rotorMap array to the right by one
+    // Shift rotorMap array to the left by one and add one to number to account for rotation
     int first = rotorMap[0] - 1;
+    // If goes past A set to Z
     if (first < 0)
         first = 25;
     for (int i = 0; i < rotorMap.size(); i++)

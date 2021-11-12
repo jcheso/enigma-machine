@@ -5,10 +5,9 @@ using namespace std;
 OutputBoard::OutputBoard()
 {
 }
-
-/* This method takes a number and returns the corresponding character */
-void OutputBoard::mapNum2Letter(int num, char ch)
+void OutputBoard::outputLetter(int num)
 {
+    char ch;
     ch = static_cast<char>(num + 65);
     cout << ch;
 }

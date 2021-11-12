@@ -22,7 +22,8 @@ public:
     provided it will initialise a default 1 to 1 plugboard */
     int initialisePlugboard(vector<string> config);
     /* This class method takes in an input and swaps it to the correct output */
-    void swapLetter(int input, int &output);
+    void swapLetter(int &output);
+    /* This class method generates a default 1 to 1 plugboard */
     void generateDefaultPlugboard();
 };
 #endif

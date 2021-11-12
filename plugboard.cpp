@@ -13,7 +13,6 @@ Plugboard::Plugboard()
     vector<string> plugboardInput;
 }
 
-/* This method fills the remainder of the plugboard with the missing characters */
 void Plugboard::fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
 {
     int num2add;
@@ -34,8 +33,6 @@ void Plugboard::fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
     }
 };
 
-/* This method takes in a config file and initialises the plugboard array, if no array is
-provided it will initialise a default 1 to 1 plugboard */
 int Plugboard::initialisePlugboard(vector<string> config)
 {
     if (config.size() > 0)
@@ -78,16 +75,15 @@ int Plugboard::initialisePlugboard(vector<string> config)
             }
         }
     }
-
     // Check if length of input array is less than 26, if so run fillArray on both arrays to map remaining numbers
     if (config.size() < 26)
         fillArray(array1, array2, array2.size());
     return NO_ERROR;
 }
 
-/* This class method takes in an input and swaps it to the correct output */
-void Plugboard::swapLetter(int input, int &output)
+void Plugboard::swapLetter(int &output)
 {
+    int input = output;
     int arrayPosition;
     if (isInArray(input, array1, arrayPosition))
         output = array2[arrayPosition];

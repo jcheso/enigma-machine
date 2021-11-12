@@ -10,14 +10,12 @@ Reflector::Reflector()
 {
     vector<int> array1;
     vector<int> array2;
-    int reflectedNumber;
 }
 
 /* This method initialises a reflector from a provided config file */
 int Reflector::initialiseReflector(vector<string> config)
 {
     int num;
-    // Check isValidLen()
     if ((config.size() % 2 == 0) && config.size() != 26)
     {
         cerr << "Insufficient number of mappings in reflector file: reflector.rf" << endl;
@@ -63,8 +61,10 @@ int Reflector::initialiseReflector(vector<string> config)
     return NO_ERROR;
 }
 
-void Reflector::reflectNumber(int input, int &output)
+// This function takes the number and finds which array it's in, then returns its corresponding value
+void Reflector::reflectNumber(int &output)
 {
+    int input = output;
     int arrayPosition;
     if (isInArray(input, array1, arrayPosition))
         output = array2[arrayPosition];

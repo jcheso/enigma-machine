@@ -8,7 +8,6 @@ using namespace std;
 /* This class models the Input Switches */
 class InputSwitches
 {
-    char ch;
 
 public:
     InputSwitches();

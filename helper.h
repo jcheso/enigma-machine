@@ -19,9 +19,6 @@ bool isNumeric(string ch);
 /* This function checks if the input is in the range of 0-25 */
 bool isValidNum(int num);
 
-/* This function checks if the array is the expected length */
-bool isValidLen(int n, vector<int> array);
-
 /* This function checks if the value is already in the array */
 bool isInArray(int n, vector<int> array);
 

@@ -8,3 +8,9 @@ main.cpp
 outputBoard.h.gch
 reflector.h.gch
 rotor.h.gch
+rotor.h.gch
+reflector.o
+plugboard.o
+.gitignore
+main.o
+inputSwitches.o

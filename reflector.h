@@ -12,12 +12,11 @@ class Reflector
 private:
     vector<int> array1;
     vector<int> array2;
-    int reflectedNumber;
 
 public:
     Reflector();
     /* This method initialises a reflector from a provided config file */
     int initialiseReflector(vector<string> config);
-    void reflectNumber(int input, int &output);
+    void reflectNumber(int &output);
 };
 #endif
