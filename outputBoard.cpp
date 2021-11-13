@@ -2,9 +2,7 @@
 #include "outputBoard.h"
 using namespace std;
 
-OutputBoard::OutputBoard()
-{
-}
+OutputBoard::OutputBoard() {}
 void OutputBoard::outputLetter(int num)
 {
     char ch;

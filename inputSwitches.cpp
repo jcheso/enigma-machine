@@ -4,13 +4,10 @@
 #include "errors.h"
 using namespace std;
 
-InputSwitches::InputSwitches()
-{
-}
+InputSwitches::InputSwitches() {}
 
 int InputSwitches::readInput(int &num)
 {
-    char ch;
     cin >> ws;
     cin >> ch;
     num = ch - 65;

@@ -54,7 +54,7 @@ bool isNumeric(string ch)
 {
     try
     {
-        for (size_t i = 0; i < ch.size(); i++)
+        for (int i = 0; i < ch.size(); i++)
         {
             string tempString;
             tempString = ch[i];
@@ -78,7 +78,7 @@ bool isValidNum(int num)
 
 bool isInArray(int n, vector<int> array)
 {
-    for (size_t i = 0; i < array.size(); i++)
+    for (int i = 0; i < array.size(); i++)
     {
         if (n == array[i])
             return true;
@@ -88,7 +88,7 @@ bool isInArray(int n, vector<int> array)
 
 bool isInArray(int n, vector<int> array, int &arrayPosition)
 {
-    for (size_t i = 0; i < array.size(); i++)
+    for (int i = 0; i < array.size(); i++)
     {
         if (n == array[i])
         {
@@ -101,12 +101,15 @@ bool isInArray(int n, vector<int> array, int &arrayPosition)
 
 bool checkCorrectParameters(int argc, char **argv)
 {
+    // Check if a minimum of the rf, rotor, rotorPos supplied
+    if (argc < 3)
+        return false;
     // If a plugboard is supplied, check if there is at least one reflector, rotor and rotor position
-    if (isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[2], 'f') || !isFileSupplied(argv[3], 't') || !isFileSupplied(argv[argc - 1], 's')))
+    else if (isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[2], 'f') || !isFileSupplied(argv[argc - 1], 's')))
         return false;
 
     // If a plugboard is not supplied, check if there is at least one reflector, rotor and rotor position
-    else if (!isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[1], 'f') || !isFileSupplied(argv[2], 't') || !isFileSupplied(argv[argc - 1], 's')))
+    else if (!isFileSupplied(argv[1], 'b') && (!isFileSupplied(argv[1], 'f') || !isFileSupplied(argv[argc - 1], 's')))
         return false;
 
     return true;

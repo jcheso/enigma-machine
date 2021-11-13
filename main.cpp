@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         {
             numRotors = argc - 3;
             parseInputStrings(argv[1], reflectorInput);
-            for (size_t i = 0; i < numRotors; i++)
+            for (int i = 0; i < numRotors; i++)
                 parseInputStrings(argv[2 + i], rotorsInput[i]);
         }
         else
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
             numRotors = argc - 4;
             parseInputStrings(argv[1], plugboardInput);
             parseInputStrings(argv[2], reflectorInput);
-            for (size_t i = 0; i < numRotors; i++)
+            for (int i = 0; i < numRotors; i++)
                 parseInputStrings(argv[3 + i], rotorsInput[i]);
         }
         parseInputStrings(argv[argc - 1], rotorPosInput);
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
             plugboard.initialisePlugboard(plugboardInput);
         else
             plugboard.generateDefaultPlugboard();
-        for (size_t i = 0; i < numRotors; i++)
+        for (int i = 0; i < numRotors; i++)
         {
             if (i >= rotorPosInput.size())
             {

@@ -7,15 +7,7 @@
 using namespace std;
 
 /* This class models a Rotor */
-Rotor::Rotor()
-{
-    vector<int> rotorMap;
-    vector<int> notches;
-    int startPosition;
-    int rotorNum;
-    int rotations;
-    bool activatedNotch = false;
-}
+Rotor::Rotor() {}
 
 /* This method gets the start position of the rotor from the config provided */
 int Rotor::getStartPosition(string config)

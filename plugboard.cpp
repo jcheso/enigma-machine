@@ -6,20 +6,15 @@
 #include "plugboard.h"
 using namespace std;
 
-Plugboard::Plugboard()
-{
-    vector<int> array1;
-    vector<int> array2;
-    vector<string> plugboardInput;
-}
+Plugboard::Plugboard() {}
 
 void Plugboard::fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
 {
     int num2add;
     // Iterate from 0 to 25 and check if the value is in the input array
-    for (size_t i = 0; i < (26 - (arrSize * 2)); i++)
+    for (int i = 0; i < (26 - (arrSize * 2)); i++)
     {
-        for (size_t j = 0; j < 26; j++)
+        for (int j = 0; j < 26; j++)
         {
             // If not in index, append value to input and output arrays.
             if (!isInArray(j, array1) && !isInArray(j, array2))
@@ -44,7 +39,7 @@ int Plugboard::initialisePlugboard(vector<string> config)
             cerr << "Incorrect number of parameters in plugboard file plugboard.pb" << endl;
             throw(INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS);
         }
-        for (size_t i = 0; i < config.size(); i++)
+        for (int i = 0; i < config.size(); i++)
         {
             // Check isNumeric() & convert to int if true. Return error code if false
             if (isNumeric(config[i]))
@@ -93,7 +88,7 @@ void Plugboard::swapLetter(int &output)
 
 void Plugboard::generateDefaultPlugboard()
 {
-    for (size_t i = 0; i < 26; i++)
+    for (int i = 0; i < 26; i++)
     {
         array1.push_back(i);
         array2.push_back(i);
