@@ -10,7 +10,7 @@ int InputSwitches::readInput(int &num)
 {
     cin >> ws;
     cin >> ch;
-    num = ch - 65;
+    num = ch - 'A';
 
     if (!isValidNum(num))
     {

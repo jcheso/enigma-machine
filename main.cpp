@@ -14,6 +14,13 @@
 #include "outputBoard.h"
 using namespace std;
 
+// ** TO DO **
+// Parse inputs in each object w/ method that calls helper function
+// Enigma method to receive inputs
+// Enigma method to initialise objects
+// Enigma method to run enigma
+// Review against best practices & feedback
+
 /* I have used main to run the Enigma machine over creating an Enigma class to contain all the objects
 on the basis that only one is required for this assignment. If multiple were required this code could be
 transferred to an Enigma class which has the objects as variables and the methods required to run it as per below.*/
@@ -68,6 +75,7 @@ int main(int argc, char **argv)
             plugboard.initialisePlugboard(plugboardInput);
         else
             plugboard.generateDefaultPlugboard();
+
         for (int i = 0; i < numRotors; i++)
         {
             if (i >= rotorPosInput.size())
