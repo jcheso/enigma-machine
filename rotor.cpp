@@ -6,10 +6,8 @@
 #include "rotor.h"
 using namespace std;
 
-/* This class models a Rotor */
 Rotor::Rotor() {}
 
-/* This method gets the start position of the rotor from the config provided */
 int Rotor::getStartPosition(string config)
 {
     if (!isNumeric(config))
@@ -26,7 +24,6 @@ int Rotor::getStartPosition(string config)
     return NO_ERROR;
 }
 
-/* This method sets the start position of the rotor */
 void Rotor::setStartPosition()
 {
     for (int i = 0; i < startPosition; i++)
@@ -42,7 +39,7 @@ int Rotor::initialiseRotor(vector<string> config, string rotorPosInput)
         cerr << "Not all inputs mapped in rotor file: rotor.rot" << endl;
         throw(INVALID_ROTOR_MAPPING);
     }
-    for (int i = 0; i < config.size(); i++)
+    for (size_t i = 0; i < config.size(); i++)
     {
         int num;
         // Check isNumeric() & convert to int if true. Return error code if false
@@ -79,7 +76,6 @@ int Rotor::initialiseRotor(vector<string> config, string rotorPosInput)
     setStartPosition();
     return NO_ERROR;
 }
-/* This method rotates the rotor specified*/
 void Rotor::rotateRotor()
 {
     // Shift rotorMap array to the left by one and add one to number to account for rotation
@@ -87,7 +83,7 @@ void Rotor::rotateRotor()
     // If goes past A set to Z
     if (first < 0)
         first = 25;
-    for (int i = 0; i < rotorMap.size(); i++)
+    for (size_t i = 0; i < rotorMap.size(); i++)
     {
         rotorMap[i] = (rotorMap[i + 1] - 1);
         if (rotorMap[i] < 0)
@@ -96,7 +92,6 @@ void Rotor::rotateRotor()
     rotorMap[rotorMap.size() - 1] = first;
     rotations++;
 }
-/* This method maps the input number to the output number */
 void Rotor::mapNumber(int &num, bool reflected)
 {
     if (!reflected)
@@ -104,11 +99,10 @@ void Rotor::mapNumber(int &num, bool reflected)
     else
         isInArray(num, rotorMap, num);
 }
-/* This method checks if the notch is at 12 o'clock */
 bool Rotor::checkNotch()
 {
     // Iterate through notches & check if the current rotation is at the notch
-    for (int i = 0; i < notches.size(); i++)
+    for (size_t i = 0; i < notches.size(); i++)
     {
         if (rotations == notches[i])
             return true;

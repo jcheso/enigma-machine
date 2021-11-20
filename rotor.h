@@ -14,9 +14,8 @@ private:
     vector<int> rotorMap;
     vector<int> notches;
     int startPosition;
-    int num;
-    int index;
     int rotations;
+
     /* This method gets the start position of the rotor from the config provided */
     int getStartPosition(string config);
     /* This method sets the start position of the rotor */
@@ -24,6 +23,7 @@ private:
 
 public:
     Rotor();
+    /* This variable tracks whether the notch has been activated previously, as not to trigger it on every notch check */
     bool activatedNotch;
     /* This method initialises a rotor from a provided config file */
     int initialiseRotor(vector<string> config, string rotorPosInput);

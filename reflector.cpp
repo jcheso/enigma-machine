@@ -8,7 +8,6 @@ using namespace std;
 
 Reflector::Reflector() {}
 
-/* This method initialises a reflector from a provided config file */
 int Reflector::initialiseReflector(vector<string> config)
 {
     int num;
@@ -23,7 +22,7 @@ int Reflector::initialiseReflector(vector<string> config)
         throw(INCORRECT_NUMBER_OF_REFLECTOR_PARAMETERS);
     }
 
-    for (int i = 0; i < config.size(); i++)
+    for (size_t i = 0; i < config.size(); i++)
     {
         // Check isNumeric() & convert to int if true. Return error code if false
         if (isNumeric(config[i]))
@@ -56,11 +55,11 @@ int Reflector::initialiseReflector(vector<string> config)
     return NO_ERROR;
 }
 
-// This function takes the number and finds which array it's in, then returns its corresponding value
 void Reflector::reflectNumber(int &output)
 {
     int input = output;
     int arrayPosition;
+    // Find which array the letter is in and swap accordingly.
     if (isInArray(input, array1, arrayPosition))
         output = array2[arrayPosition];
     else if (isInArray(input, array2, arrayPosition))

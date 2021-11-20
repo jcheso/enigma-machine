@@ -5,7 +5,6 @@ using namespace std;
 OutputBoard::OutputBoard() {}
 void OutputBoard::outputLetter(int num)
 {
-    char ch;
-    ch = static_cast<char>(num + 65);
+    char ch = num + 'A';
     cout << ch;
 }
