@@ -13,7 +13,9 @@ private:
 
 public:
     InputSwitches();
-    /* This method reads in a char and returns an int corresponding to the position in the Alphabet */
+    /* This method reads in a char and updates a reference variable to an int corresponding to the position in the Alphabet
+     * If an error is encountered with the input it will return the error code.
+     */
     int readInput(int &num);
 };
 

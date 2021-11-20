@@ -25,8 +25,10 @@ bool isInArray(int n, vector<int> array);
 /* This function checks if the value is already in the array and returns the position */
 bool isInArray(int n, vector<int> array, int &arrayPosition);
 
+/* This function checks if a file ending in a certain char is supplied */
 bool isFileSupplied(string filename, char lastChar);
 
+/* This function checks if files were provided in the required format for Enigma */
 bool checkCorrectParameters(int argc, char **argv);
 
 #endif

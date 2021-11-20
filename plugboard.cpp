@@ -11,12 +11,13 @@ Plugboard::Plugboard() {}
 void Plugboard::fillArray(vector<int> &array1, vector<int> &array2, int arrSize)
 {
     int num2add;
-    // Iterate from 0 to 25 and check if the value is in the input array
+    // Iterate from 0 to number of letters missing from Alphabet
     for (int i = 0; i < (26 - (arrSize * 2)); i++)
     {
+        // Iterate from 0 - 25 and check if the value is in the input array
         for (int j = 0; j < 26; j++)
         {
-            // If not in index, append value to input and output arrays.
+            // If not in array, push value to input and output arrays.
             if (!isInArray(j, array1) && !isInArray(j, array2))
             {
                 num2add = j;
@@ -39,7 +40,7 @@ int Plugboard::initialisePlugboard(vector<string> config)
             cerr << "Incorrect number of parameters in plugboard file plugboard.pb" << endl;
             throw(INCORRECT_NUMBER_OF_PLUGBOARD_PARAMETERS);
         }
-        for (int i = 0; i < config.size(); i++)
+        for (size_t i = 0; i < config.size(); i++)
         {
             // Check isNumeric() & convert to int if true. Return error code if false
             if (isNumeric(config[i]))
@@ -80,6 +81,7 @@ void Plugboard::swapLetter(int &output)
 {
     int input = output;
     int arrayPosition;
+    // Find which array the letter is in and swap accordingly.
     if (isInArray(input, array1, arrayPosition))
         output = array2[arrayPosition];
     else if (isInArray(input, array2, arrayPosition))

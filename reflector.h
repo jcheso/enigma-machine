@@ -17,6 +17,7 @@ public:
     Reflector();
     /* This method initialises a reflector from a provided config file */
     int initialiseReflector(vector<string> config);
+    /* This function takes the number and finds which array it's in, then returns its corresponding value */
     void reflectNumber(int &output);
 };
 #endif
