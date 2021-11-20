@@ -5,7 +5,7 @@
 using namespace std;
 
 /* This function takes an input string and assigns the contents to an string vector for further processing later */
-int parseInputStrings(char array[], vector<string> &arrayOut);
+int parseInputToString(char array[], vector<string> &arrayOut);
 
 /* This function checks if a plugboard was provided */
 bool plugboardSupplied(string plugboardTest);

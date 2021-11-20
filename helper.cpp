@@ -6,7 +6,7 @@
 #include "errors.h"
 using namespace std;
 
-int parseInputStrings(char arrayIn[], vector<string> &arrayOut)
+int parseInputToString(char arrayIn[], vector<string> &arrayOut)
 {
     ifstream input;
     input.open(arrayIn);
