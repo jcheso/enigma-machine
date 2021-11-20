@@ -85,3 +85,13 @@ The reflector (5) is a device at the end of the rotors which has contacts for ea
 only. The letters are wired up in pairs, so that an input current on one letter is output back to a different letter.
 As mentioned above, it causes the input signal to be reflected back through the rotors and plugboard, and then
 into one of the bulbs on the output board.
+
+# Usage
+
+The program uses the configuration files provided to encrypt a message provided in input.txt and output the message to output.txt
+
+Compile with the provided Makefile and use the following command:
+
+./enigma plugboards/IV.pb reflectors/I.rf rotors/I.rot rotors/II.rot rotors/III.rot rotors/I.pos < input.txt > output.txt
+
+
